@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginScreen
+import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScreen
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupScreen
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -29,7 +30,10 @@ fun AppNavigation(startDestination: String = Screen.Startup.route) {
         }
 
         composable(Screen.Register.route) {
-            //TODO: RegisterScreen()
+            RegisterScreen(
+                onRegisterSuccess = { navController.navigate(Screen.Home.route) },
+                onNavigateToLogin = { navController.navigate(navController.popBackStack()) }
+            )
         }
 
         composable(Screen.Home.route) {

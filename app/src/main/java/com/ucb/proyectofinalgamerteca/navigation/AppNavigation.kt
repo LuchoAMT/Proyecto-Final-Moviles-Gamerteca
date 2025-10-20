@@ -1,59 +1,99 @@
 package com.ucb.proyectofinalgamerteca.navigation
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
+import com.ucb.proyectofinalgamerteca.features.games.presentation.GameDetailScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListScreen
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginScreen
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScreen
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupScreen
 
 @Composable
-fun AppNavigation(startDestination: String = Screen.GamesList.route) {
+fun AppNavigation(startDestination: String = Screen.Startup.route) {
     val navController = rememberNavController()
-    NavHost(navController = navController, startDestination = startDestination) {
-        // Pantalla de Inicio
-        composable(Screen.Startup.route) {
-            StartupScreen(
-              onContinue = { navController.navigate(Screen.Login.route) }
-            )
-        }
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
 
-        // Pantalla de login
-        composable(Screen.Login.route) {
-            LoginScreen(
-                onLoginSuccess = { navController.navigate("home") },
-                onNavigateToRegister = { navController.navigate("register") }
-            )
-        }
+    // Rutas donde NO queremos mostrar la barra inferior
+    val noBottomBarRoutes = listOf(
+        Screen.Startup.route,
+        Screen.Login.route,
+        Screen.Register.route
+    )
 
-        // Pantalla de registro
-        composable(Screen.Register.route) {
-            RegisterScreen(
-                onRegisterSuccess = { navController.navigate(Screen.Home.route) },
-                onNavigateToLogin = {
-                    navController.navigate(Screen.Login.route) {
-                        popUpTo(Screen.Login.route) { inclusive = true }
+    Scaffold(
+        bottomBar = {
+            if (currentRoute !in noBottomBarRoutes) {
+                BottomNavBar(navController)
+            }
+        }
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = startDestination,
+            modifier = Modifier.padding(innerPadding)
+        ) {
+            // Startup
+            composable(Screen.Startup.route) {
+                StartupScreen(onContinue = { navController.navigate(Screen.Login.route) })
+            }
+
+            // Login
+            composable(Screen.Login.route) {
+                LoginScreen(
+                    onLoginSuccess = { navController.navigate(Screen.GamesList.route) },
+                    onNavigateToRegister = { navController.navigate(Screen.Register.route) }
+                )
+            }
+
+            // Register
+            composable(Screen.Register.route) {
+                RegisterScreen(
+                    onRegisterSuccess = { navController.navigate(Screen.GamesList.route) },
+                    onNavigateToLogin = {
+                        navController.navigate(Screen.Login.route) {
+                            popUpTo(Screen.Login.route) { inclusive = true }
+                        }
                     }
-                }
-            )
-        }
+                )
+            }
 
-        // Pantalla de lista de juegos
-        composable(Screen.GamesList.route) {
-            GamesListScreen(
-                onGameClick = { gameId ->
-                    navController.navigate(Screen.GameDetail.createRoute(gameId))
-                },
-                onBackClick = {
-                    navController.popBackStack()
-                }
-            )
-        }
+            // Lista de juegos
+            composable(Screen.GamesList.route) {
+                GamesListScreen(
+                    onGameClick = { gameId ->
+                        navController.navigate(Screen.GameDetail.createRoute(gameId))
+                    },
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
 
-        composable(Screen.Home.route) {
-            //TODO HomeScreen()
+            // Detalle del juego
+            composable(
+                Screen.GameDetail.route,
+                arguments = listOf(navArgument("gameId") { type = NavType.LongType })
+            ) { backStackEntry ->
+                val gameId = backStackEntry.arguments?.getLong("gameId") ?: return@composable
+                GameDetailScreen(
+                    gameId = gameId,
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            // Pantallas vacías por ahora (placeholders)
+            composable("lists") { Text("Pantalla de listas") }
+            composable("profile") { Text("Pantalla de perfil") }
+            composable("settings") { Text("Pantalla de configuraciones") }
         }
     }
 }

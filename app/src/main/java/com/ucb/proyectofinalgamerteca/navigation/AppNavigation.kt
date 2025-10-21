@@ -15,6 +15,7 @@ import androidx.navigation.navArgument
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GameDetailScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListScreen
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginScreen
+import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileScreen
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScreen
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupScreen
 
@@ -108,7 +109,7 @@ fun AppNavigation(startDestination: String = Screen.GamesList.route) {
             }
 
             composable("profile") {
-                Text("Pantalla de perfil")
+                ProfileScreen()
             }
 
             composable("settings") {

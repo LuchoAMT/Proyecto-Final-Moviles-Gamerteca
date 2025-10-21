@@ -3,7 +3,6 @@ package com.ucb.proyectofinalgamerteca.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
@@ -13,6 +12,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 
@@ -52,5 +52,5 @@ fun BottomNavBar(navController: NavController) {
 data class BottomNavItem(
     val label: String,
     val route: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector
+    val icon: ImageVector
 )

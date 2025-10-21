@@ -18,7 +18,7 @@ class GamesRemoteDataSource(
             fields id, name, rating, cover.url, first_release_date, genres.name;
             where rating > 80 & cover != null;
             sort rating desc;
-            limit 10;
+            limit $limit;
         """.trimIndent()
 
         val requestBody = queryString.toRequestBody("text/plain".toMediaTypeOrNull())
@@ -32,20 +32,36 @@ class GamesRemoteDataSource(
 
             if (response.isSuccessful) {
                 val games = response.body().orEmpty()
+                Log.d(TAG, "✅ ${games.size} juegos recibidos de IGDB")
                 Result.success(games)
             } else {
                 val errorBody = response.errorBody()?.string() ?: "Error desconocido"
+                Log.e(TAG, "❌ Error ${response.code()}: $errorBody")
                 Result.failure(Exception("Error ${response.code()}: $errorBody"))
             }
         } catch (e: Exception) {
+            Log.e(TAG, "❌ Excepción: ${e.message}", e)
             Result.failure(e)
         }
     }
 
     suspend fun getGameById(gameId: Long): Result<GameDto> {
+        // ✅ QUERY COMPLETA con TODOS los campos necesarios
         val queryString = """
-            fields id, name, summary, rating, first_release_date, 
-                   platforms.name, genres.name, cover.url, similar_games;
+            fields 
+                id, 
+                name, 
+                summary, 
+                rating, 
+                first_release_date,
+                cover.url,
+                platforms.name,
+                genres.name,
+                similar_games,
+                involved_companies.company.name,
+                involved_companies.developer,
+                involved_companies.publisher,
+                screenshots.url;
             where id = $gameId;
             limit 1;
         """.trimIndent()
@@ -65,14 +81,16 @@ class GamesRemoteDataSource(
                     val game = games.first()
                     Result.success(game)
                 } else {
-                    Log.e(TAG, "❌ Juego con ID=$gameId no encontrado")
+                    Log.e(TAG, "❌ Juego con ID=$gameId no encontrado en IGDB")
                     Result.failure(Exception("Juego no encontrado"))
                 }
             } else {
                 val errorBody = response.errorBody()?.string() ?: "Error desconocido"
+                Log.e(TAG, "❌ Error ${response.code()}: $errorBody")
                 Result.failure(Exception("Error ${response.code()}: $errorBody"))
             }
         } catch (e: Exception) {
+            Log.e(TAG, "❌ Excepción: ${e.message}", e)
             Result.failure(e)
         }
     }

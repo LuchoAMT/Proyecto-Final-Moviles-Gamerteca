@@ -42,24 +42,31 @@ class GamesRepository(
     }
 
     override suspend fun getGameById(gameId: Long): Result<GameModel> {
-        val localGame = local.getGameById(gameId)
-        if (localGame != null) {
-            Log.d(TAG, "🎮 Juego obtenido localmente: ${localGame.name}")
-            return Result.success(localGame)
-        }
 
         return try {
             val remoteResult = remote.getGameById(gameId)
             remoteResult.fold(
                 onSuccess = { dto ->
                     val model = dto.toModel()
+
+                    // Guardar en BD con TODOS los datos
                     local.insertGame(model)
-                    Log.d(TAG, "🌐 Juego descargado y guardado: ${model.name}")
+                    Log.d(TAG, "💾 Juego guardado en BD local con datos completos")
+
                     Result.success(model)
                 },
                 onFailure = { e ->
-                    Log.e(TAG, "❌ Error al obtener juego remoto: ${e.message}", e)
-                    Result.failure(e)
+                    Log.e(TAG, "❌ Error al obtener juego de la API: ${e.message}", e)
+
+                    // Solo usar caché si la API falla completamente
+                    val localGame = local.getGameById(gameId)
+                    if (localGame != null) {
+                        Log.w(TAG, "⚠️ Usando juego del caché local: ${localGame.name}")
+                        Result.success(localGame)
+                    } else {
+                        Log.e(TAG, "❌ No hay datos en caché para el juego ID=$gameId")
+                        Result.failure(e)
+                    }
                 }
             )
         } catch (e: Exception) {
@@ -69,7 +76,7 @@ class GamesRepository(
     }
 
     /**
-     * Mapea GameDto → GameModel
+     * Mapea GameDto → GameModel con TODOS los campos
      */
     private fun GameDto.toModel(): GameModel {
         return GameModel(
@@ -82,7 +89,17 @@ class GamesRepository(
                 if (url.startsWith("//")) "$IGDB_IMAGE_BASE$url" else url
             },
             platforms = platforms?.mapNotNull { it.name } ?: emptyList(),
-            genres = genres?.mapNotNull { it.name } ?: emptyList()
+            genres = genres?.mapNotNull { it.name } ?: emptyList(),
+            similarGames = similarGames ?: emptyList(),
+            involvedCompanies = involvedCompanies
+                ?.filter { it.developer == true || it.publisher == true }
+                ?.mapNotNull { it.company?.name }
+                ?: emptyList(),
+            screenshots = screenshots?.mapNotNull { screenshot ->
+                screenshot.url?.let { url ->
+                    if (url.startsWith("//")) "$IGDB_IMAGE_BASE$url" else url
+                }
+            } ?: emptyList()
         )
     }
 }

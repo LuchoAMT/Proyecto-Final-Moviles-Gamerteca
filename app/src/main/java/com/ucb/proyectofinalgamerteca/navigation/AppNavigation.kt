@@ -19,7 +19,7 @@ import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScr
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupScreen
 
 @Composable
-fun AppNavigation(startDestination: String = Screen.Startup.route) {
+fun AppNavigation(startDestination: String = Screen.GamesList.route) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -28,7 +28,7 @@ fun AppNavigation(startDestination: String = Screen.Startup.route) {
     val noBottomBarRoutes = listOf(
         Screen.Startup.route,
         Screen.Login.route,
-        Screen.Register.route
+        Screen.Register.route,
     )
 
     Scaffold(
@@ -80,20 +80,40 @@ fun AppNavigation(startDestination: String = Screen.Startup.route) {
 
             // Detalle del juego
             composable(
-                Screen.GameDetail.route,
+                route = Screen.GameDetail.route,
                 arguments = listOf(navArgument("gameId") { type = NavType.LongType })
             ) { backStackEntry ->
                 val gameId = backStackEntry.arguments?.getLong("gameId") ?: return@composable
                 GameDetailScreen(
                     gameId = gameId,
+                    onBackClick = { navController.popBackStack() },
+                    onGameClick = { relatedGameId ->
+                        navController.navigate(Screen.GameDetail.createRoute(relatedGameId))
+                    }
+                )
+            }
+
+            // Pantallas de navegación inferior
+            composable(Screen.Home.route) {
+                GamesListScreen(
+                    onGameClick = { gameId ->
+                        navController.navigate(Screen.GameDetail.createRoute(gameId))
+                    },
                     onBackClick = { navController.popBackStack() }
                 )
             }
 
-            // Pantallas vacías por ahora (placeholders)
-            composable("lists") { Text("Pantalla de listas") }
-            composable("profile") { Text("Pantalla de perfil") }
-            composable("settings") { Text("Pantalla de configuraciones") }
+            composable("lists") {
+                Text("Pantalla de listas")
+            }
+
+            composable("profile") {
+                Text("Pantalla de perfil")
+            }
+
+            composable("settings") {
+                Text("Pantalla de configuraciones")
+            }
         }
     }
 }

@@ -7,7 +7,7 @@ import androidx.room.RoomDatabase
 import com.ucb.proyectofinalgamerteca.features.games.data.database.dao.IGameDao
 import com.ucb.proyectofinalgamerteca.features.games.data.database.entity.GameEntity
 
-@Database(entities = [GameEntity::class], version = 3, exportSchema = false)
+@Database(entities = [GameEntity::class], version = 4, exportSchema = false)
 abstract class GamesRoomDatabase : RoomDatabase() {
     abstract fun gameDao(): IGameDao
 

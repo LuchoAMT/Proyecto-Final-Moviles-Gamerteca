@@ -14,8 +14,11 @@ data class GameEntity(
     @ColumnInfo(name = "rating") val rating: Double?,
     @ColumnInfo(name = "release_date") val releaseDate: Long?,
     @ColumnInfo(name = "cover_url") val coverUrl: String?,
-    @ColumnInfo(name = "platforms") val platforms: String?, // Guardado como String separado por comas
-    @ColumnInfo(name = "genres") val genres: String?, // Guardado como String separado por comas
+    @ColumnInfo(name = "platforms") val platforms: String?,
+    @ColumnInfo(name = "genres") val genres: String?,
+    @ColumnInfo(name = "involved_companies") val involvedCompanies: String?,
+    @ColumnInfo(name = "screenshots") val screenshots: String?,
+    @ColumnInfo(name = "similar_games") val similarGames: String?,
     @ColumnInfo(name = "timestamp") val timestamp: Long = System.currentTimeMillis()
 ) {
     fun toModel(): GameModel {
@@ -27,7 +30,10 @@ data class GameEntity(
             releaseDate = releaseDate,
             coverUrl = coverUrl,
             platforms = platforms?.split(",")?.filter { it.isNotBlank() } ?: emptyList(),
-            genres = genres?.split(",")?.filter { it.isNotBlank() } ?: emptyList()
+            genres = genres?.split(",")?.filter { it.isNotBlank() } ?: emptyList(),
+            similarGames = similarGames?.split(",")?.mapNotNull { it.toLongOrNull() } ?: emptyList(),
+            involvedCompanies = involvedCompanies?.split(",")?.filter { it.isNotBlank() } ?: emptyList(),
+            screenshots = screenshots?.split(",")?.filter { it.isNotBlank() } ?: emptyList()
         )
     }
 }

@@ -1,6 +1,5 @@
 package com.ucb.proyectofinalgamerteca.features.games.domain.model
 
-import com.ucb.proyectofinalgamerteca.features.games.data.database.entity.GameEntity
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -13,7 +12,10 @@ data class GameModel(
     val releaseDate: Long?,
     val coverUrl: String?,
     val platforms: List<String>,
-    val genres: List<String>
+    val genres: List<String>,
+    val similarGames: List<Long> = emptyList(),
+    val involvedCompanies: List<String> = emptyList(),
+    val screenshots: List<String> = emptyList()
 ) {
     fun getFormattedReleaseDate(): String {
         return releaseDate?.let {
@@ -22,21 +24,19 @@ data class GameModel(
         } ?: "Fecha desconocida"
     }
 
-    fun getRatingStars(): Int = rating?.let { (it / 20).toInt() } ?: 0
+    fun getRatingStars(): Int {
+        return rating?.let { (it / 20).toInt() } ?: 0
+    }
 
-    fun getHighResolutionCoverUrl(): String? =
-        coverUrl?.replace("t_thumb", "t_cover_big")
+    fun getHighResolutionCoverUrl(): String? {
+        return coverUrl?.replace("t_thumb", "t_cover_big")
+    }
 
-    fun toEntity(): GameEntity {
-        return GameEntity(
-            id = id,
-            name = name,
-            summary = summary,
-            rating = rating,
-            releaseDate = releaseDate,
-            coverUrl = coverUrl,
-            platforms = platforms.joinToString(","),
-            genres = genres.joinToString(",")
-        )
+    fun getRatingText(): String {
+        return rating?.let {
+            val ratingValue = it / 20
+            val roundedValue = "%.1f".format(ratingValue)
+            "$roundedValue/5"
+        } ?: "Sin calificación"
     }
 }

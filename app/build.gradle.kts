@@ -89,5 +89,8 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.okhttp.logging.interceptor)
-    implementation("io.coil-kt:coil-compose:2.4.0")
+
+    implementation(libs.okhttp.logging.interceptor)
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.appcompat)
 }

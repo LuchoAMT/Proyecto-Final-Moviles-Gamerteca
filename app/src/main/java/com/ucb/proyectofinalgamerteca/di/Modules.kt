@@ -81,7 +81,12 @@ val appModule = module {
 
     // ViewModels
     viewModel { GamesListViewModel(getPopularGames = get()) }
-    viewModel { GameDetailViewModel(getGameDetails = get()) }
+    viewModel {
+        GameDetailViewModel(
+            getGameDetails = get(),
+            getPopularGames = get()
+        )
+    }
     viewModel { StartupViewModel() }
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel() }

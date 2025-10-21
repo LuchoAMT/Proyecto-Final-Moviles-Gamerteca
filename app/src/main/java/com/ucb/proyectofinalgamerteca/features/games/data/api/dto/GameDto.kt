@@ -1,6 +1,5 @@
 package com.ucb.proyectofinalgamerteca.features.games.data.api.dto
 
-import android.util.Log
 import com.google.gson.annotations.SerializedName
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
 import kotlin.collections.filter
@@ -19,12 +18,6 @@ data class GameDto(
     @SerializedName("similar_games") val similarGames: List<Long>? = emptyList()
 ) {
     fun toModel(): GameModel {
-        Log.d("GameDto", "Platforms: ${platforms?.map { it.name }}")
-        Log.d("GameDto", "Genres: ${genres?.map { it.name }}")
-        Log.d("GameDto", "Involved Companies: ${involvedCompanies?.map { it.company?.name }}")
-        Log.d("GameDto", "Screenshots: ${screenshots?.map { it.url }}")
-        Log.d("GameDto", "Similar Games: $similarGames")
-        Log.d("GameDto", "Summary: $summary")
 
         return GameModel(
             id = id,

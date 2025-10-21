@@ -17,6 +17,7 @@ import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListScree
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginScreen
 import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileScreen
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScreen
+import com.ucb.proyectofinalgamerteca.features.settings.presentation.SettingsScreen
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupScreen
 
 @Composable
@@ -108,12 +109,12 @@ fun AppNavigation(startDestination: String = Screen.GamesList.route) {
                 Text("Pantalla de listas")
             }
 
-            composable("profile") {
+            composable(Screen.Profile.route) {
                 ProfileScreen()
             }
 
-            composable("settings") {
-                Text("Pantalla de configuraciones")
+            composable(Screen.Settings.route) {
+                SettingsScreen()
             }
         }
     }

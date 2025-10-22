@@ -93,4 +93,5 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.coil.compose)
     implementation(libs.androidx.appcompat)
+    implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
 }

@@ -75,8 +75,7 @@ fun GameDetailScreen(
     modifier: Modifier = Modifier,
     vm: GameDetailViewModel = koinViewModel(),
     onBackClick: () -> Unit,
-    onGameClick: (Long) -> Unit,
-    onGameClickPlatform: (String) -> Unit
+    onGameClick: (Long) -> Unit
 ) {
     val state by vm.state.collectAsState()
 
@@ -88,12 +87,12 @@ fun GameDetailScreen(
         modifier = modifier.fillMaxSize(),
         topBar = {
             CenterAlignedTopAppBar(
+                modifier = Modifier.height(120.dp),
                 title = {
-
                     Image(
                         painter = painterResource(id = R.drawable.logo_gamerteca),
                         contentDescription = "Gamerteca Logo",
-                        modifier = Modifier.height(350.dp)
+                        modifier = Modifier.height(200.dp)
                     )
                 },
                 navigationIcon = {
@@ -140,7 +139,7 @@ fun GameDetailScreen(
              
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            color = Color.White
+                            color = Color.Black
                         )
                         Text(
                             currentState.message,
@@ -154,7 +153,6 @@ fun GameDetailScreen(
                     GameDetailContent(
                         game = currentState.game,
                         onGameClick = onGameClick,
-                        onGameClickPlatform = onGameClickPlatform,
                         viewModel = vm
                     )
                 }
@@ -167,7 +165,6 @@ fun GameDetailScreen(
 fun GameDetailContent(
     game: GameModel,
     onGameClick: (Long) -> Unit,
-    onGameClickPlatform: (String) -> Unit,
     viewModel: GameDetailViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -186,6 +183,7 @@ fun GameDetailContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Row(
                 modifier = Modifier
@@ -223,7 +221,7 @@ fun GameDetailContent(
          
                         fontWeight = FontWeight.Bold,
                         fontSize = 20.sp,
-                        color = Color.White
+                        color = Color.Black
                     )
 
                     if (game.involvedCompanies.isNotEmpty()) {
@@ -231,7 +229,7 @@ fun GameDetailContent(
                             text = "Desarrolladores: ${game.involvedCompanies.joinToString(", ")}",
              
                             fontSize = 14.sp,
-                            color = Color.White.copy(alpha = 0.8f)
+                            color = Color.Black.copy(alpha = 0.8f)
                         )
                     }
 
@@ -248,7 +246,7 @@ fun GameDetailContent(
              
                             fontWeight = FontWeight.Bold,
                             fontSize = 16.sp,
-                            color = Color.White
+                            color = Color.Black
                         )
                     }
                 }
@@ -297,7 +295,7 @@ fun GameDetailContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Row(
                 modifier = Modifier
@@ -319,10 +317,6 @@ fun GameDetailContent(
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = "${if (userRating > 0) userRating else game.getRatingStars()}/5",
-                        color = Color.White
-                    )
                 }
                 // Botón de Favoritos
                 IconToggleButton(
@@ -344,7 +338,7 @@ fun GameDetailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
@@ -357,7 +351,7 @@ fun GameDetailContent(
                     Text(
                         text = game.summary,
                         fontSize = 14.sp,
-                        color = Color.White.copy(alpha = 0.9f),
+                        color = Color.Black.copy(alpha = 0.9f),
                         lineHeight = 20.sp
                     )
                 }
@@ -369,7 +363,7 @@ fun GameDetailContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = 16.dp),
-            colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
                 // Fecha
@@ -398,7 +392,7 @@ fun GameDetailContent(
                         text = "Plataformas",
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp,
-                        color = Color.White,
+                        color = Color.Black,
                         modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                     )
                     LazyRow(
@@ -410,7 +404,7 @@ fun GameDetailContent(
                                 "PC (Microsoft Windows)", "mac", "linux" -> Icons.Default.Computer
                                 else -> Icons.Default.Gamepad
                             }
-                            PlatformChip(platformName = platformName, icon = icon, onClick = { selectedPlatform -> onGameClickPlatform(selectedPlatform) })
+                            PlatformChip(platformName = platformName, icon = icon)
                         }
                     }
                 }
@@ -423,7 +417,7 @@ fun GameDetailContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
@@ -470,7 +464,7 @@ fun GameDetailContent(
 
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFF1A1A1A))
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
                     Text(
@@ -541,7 +535,7 @@ fun GameStatusButton(
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelMedium,
-                color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (isSelected) Color.Black else MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
@@ -570,25 +564,24 @@ fun DetailRow(
                 text = label,
                 fontWeight = FontWeight.SemiBold,
                 fontSize = 14.sp,
-                color = Color.White
+                color = Color.Black
             )
             Text(
                 text = value,
                 fontSize = 13.sp,
-                color = Color.White.copy(alpha = 0.8f)
+                color = Color.Black.copy(alpha = 0.8f)
             )
         }
     }
 }
 
 @Composable
-fun PlatformChip(platformName: String, icon: ImageVector, onClick: (String) -> Unit) {
+fun PlatformChip(platformName: String, icon: ImageVector) {
     Card(
         modifier = Modifier
             .height(40.dp)
-            .padding(4.dp)
-            .clickable { onClick(platformName) },
-        colors = CardDefaults.cardColors(containerColor = Color(0xFF333333))
+            .padding(4.dp),
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF9E9E9E))
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -604,7 +597,7 @@ fun PlatformChip(platformName: String, icon: ImageVector, onClick: (String) -> U
             Text(
                 text = platformName,
                 fontSize = 12.sp,
-                color = Color.White
+                color = Color.Black
             )
         }
     }

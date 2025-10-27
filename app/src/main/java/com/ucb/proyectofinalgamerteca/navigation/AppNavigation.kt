@@ -25,7 +25,7 @@ import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.Startu
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigation(startDestination: String = Screen.GamesList.route) {
+fun AppNavigation(startDestination: String = Screen.Startup.route) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route

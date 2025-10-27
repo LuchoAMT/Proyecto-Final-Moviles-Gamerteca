@@ -1,5 +1,7 @@
 package com.ucb.proyectofinalgamerteca.features.startupScreen.presentation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -32,11 +34,13 @@ import androidx.compose.ui.unit.sp
 import org.koin.androidx.compose.koinViewModel
 
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun StartupScreen(
     viewModel: StartupViewModel = koinViewModel(),
     onContinue: () -> Unit
 ) {
+
     val uiState by viewModel.uiState.collectAsState()
 
     Box(

@@ -10,6 +10,8 @@ import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.GetGameDetai
 import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.GetPopularGamesUseCase
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GameDetailViewModel
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListViewModel
+import com.ucb.proyectofinalgamerteca.features.games.presentation.PlatformGamesScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.PlatformGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.login.domain.usecase.LoginUseCase
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginViewModel
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterViewModel
@@ -90,6 +92,7 @@ val appModule = module {
     viewModel { StartupViewModel() }
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel() }
+    viewModel { PlatformGamesViewModel(get()) }
 
     factory { LoginUseCase() }
 }

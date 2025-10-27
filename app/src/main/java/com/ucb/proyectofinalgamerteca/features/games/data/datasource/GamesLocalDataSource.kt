@@ -68,4 +68,8 @@ class GamesLocalDataSource(
     suspend fun getGamesCount(): Int {
         return dao.getGamesCount()
     }
+
+    suspend fun getGamesByPlatform(platform:String, limit: Int): List<GameModel> {
+        return dao.getGamesByPlatform(platform = platform, limit = limit).map { it.toModel() }
+    }
 }

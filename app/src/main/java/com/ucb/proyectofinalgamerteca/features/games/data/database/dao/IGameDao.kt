@@ -28,4 +28,17 @@ interface IGameDao {
 
     @Query("SELECT COUNT(*) FROM games")
     suspend fun getGamesCount(): Int
+
+    @Query("""
+    SELECT * FROM games 
+    WHERE platforms = :platform
+       OR platforms LIKE :platform || ',%' 
+       OR platforms LIKE '%,' || :platform || ',%' 
+       OR platforms LIKE '%,' || :platform
+    ORDER BY timestamp DESC
+    LIMIT :limit
+    """)
+    suspend fun getGamesByPlatform(platform: String, limit: Int): List<GameEntity>
+
+
 }

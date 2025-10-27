@@ -28,6 +28,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,6 +42,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ucb.proyectofinalgamerteca.R
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,6 +50,7 @@ import com.ucb.proyectofinalgamerteca.R
 fun ProfileScreen(
     onBackClick: () -> Unit = {}
 ) {
+
     var isEditing by remember { mutableStateOf(false) }
 
     var username by remember { mutableStateOf("Test") }

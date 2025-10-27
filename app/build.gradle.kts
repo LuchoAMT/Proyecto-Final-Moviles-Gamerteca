@@ -93,4 +93,8 @@ dependencies {
     implementation(libs.okhttp.logging.interceptor)
     implementation(libs.coil.compose)
     implementation(libs.androidx.appcompat)
+
+    //coso para cambiar el color de la barra de status
+    implementation(libs.accompanist.systemuicontroller)
+
 }

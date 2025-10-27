@@ -1,5 +1,7 @@
 package com.ucb.proyectofinalgamerteca.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -14,12 +16,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GameDetailScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.PlatformGamesScreen
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginScreen
 import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileScreen
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScreen
 import com.ucb.proyectofinalgamerteca.features.settings.presentation.SettingsScreen
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupScreen
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun AppNavigation(startDestination: String = Screen.GamesList.route) {
     val navController = rememberNavController()
@@ -91,7 +95,8 @@ fun AppNavigation(startDestination: String = Screen.GamesList.route) {
                     onBackClick = { navController.popBackStack() },
                     onGameClick = { relatedGameId ->
                         navController.navigate(Screen.GameDetail.createRoute(relatedGameId))
-                    }
+                    },
+                    onGameClickPlatform = { platform -> navController.navigate(Screen.PlatformList.createRoute(platform)) }
                 )
             }
 
@@ -115,6 +120,19 @@ fun AppNavigation(startDestination: String = Screen.GamesList.route) {
 
             composable(Screen.Settings.route) {
                 SettingsScreen()
+            }
+
+            composable(Screen.PlatformList.route,
+                arguments = listOf(navArgument("platform"){ type = NavType.StringType }))
+            {
+                backStackEntry ->
+                val platform = backStackEntry.arguments?.getString("platform") ?: return@composable
+                PlatformGamesScreen(
+                    platformName = platform,
+                    onGameClick = { gameId -> navController.navigate(Screen.GameDetail.createRoute(gameId)) },
+                    onBackClick = { navController.popBackStack() },
+
+                )
             }
         }
     }

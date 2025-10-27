@@ -66,6 +66,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ucb.proyectofinalgamerteca.R
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
+import okhttp3.internal.platform.Platform
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -75,7 +76,8 @@ fun GameDetailScreen(
     modifier: Modifier = Modifier,
     vm: GameDetailViewModel = koinViewModel(),
     onBackClick: () -> Unit,
-    onGameClick: (Long) -> Unit
+    onGameClick: (Long) -> Unit,
+    onGameClickPlatform: (String) -> Unit
 ) {
     val state by vm.state.collectAsState()
 
@@ -153,6 +155,7 @@ fun GameDetailScreen(
                     GameDetailContent(
                         game = currentState.game,
                         onGameClick = onGameClick,
+                        onGameClickPlatform = onGameClickPlatform,
                         viewModel = vm
                     )
                 }
@@ -165,6 +168,7 @@ fun GameDetailScreen(
 fun GameDetailContent(
     game: GameModel,
     onGameClick: (Long) -> Unit,
+    onGameClickPlatform: (String) ->Unit,
     viewModel: GameDetailViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -404,7 +408,7 @@ fun GameDetailContent(
                                 "PC (Microsoft Windows)", "mac", "linux" -> Icons.Default.Computer
                                 else -> Icons.Default.Gamepad
                             }
-                            PlatformChip(platformName = platformName, icon = icon)
+                            PlatformChip(platformName = platformName, icon = icon, onClick = { selectedPlatform -> onGameClickPlatform(selectedPlatform) })
                         }
                     }
                 }
@@ -576,11 +580,16 @@ fun DetailRow(
 }
 
 @Composable
-fun PlatformChip(platformName: String, icon: ImageVector) {
+fun PlatformChip(
+    platformName: String,
+    icon: ImageVector,
+    onClick: (String) -> Unit
+) {
     Card(
         modifier = Modifier
             .height(40.dp)
-            .padding(4.dp),
+            .padding(4.dp)
+            .clickable { onClick(platformName) },
         colors = CardDefaults.cardColors(containerColor = Color(0xFF9E9E9E))
     ) {
         Row(

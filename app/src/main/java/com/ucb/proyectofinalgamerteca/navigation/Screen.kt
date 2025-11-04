@@ -14,4 +14,13 @@ sealed class Screen(val route: String) {
     object PlatformList : Screen("platform_list/{platform}"){
         fun createRoute(platform: String) = "platform_list/$platform"
     }
+    object GenreList : Screen("genre_list/{genre}") {
+        fun createRoute(genre: String) = "genre_list/$genre"
+    }
+    object ReleaseYearList : Screen("release_year_list/{year}") {
+        fun createRoute(year: Int) = "release_year_list/$year"
+    }
+    object DeveloperList : Screen("developer_list/{developer}") {
+        fun createRoute(developer: String) = "developer_list/$developer"
+    }
 }

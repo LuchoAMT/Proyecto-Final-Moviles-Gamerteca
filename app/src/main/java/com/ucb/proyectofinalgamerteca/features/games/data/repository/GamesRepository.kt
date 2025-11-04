@@ -6,9 +6,7 @@ import com.ucb.proyectofinalgamerteca.features.games.data.datasource.GamesLocalD
 import com.ucb.proyectofinalgamerteca.features.games.data.datasource.GamesRemoteDataSource
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
 import com.ucb.proyectofinalgamerteca.features.games.domain.repository.IGamesRepository
-
-
-private const val IGDB_IMAGE_BASE = "https:"
+import kotlin.coroutines.cancellation.CancellationException
 
 class GamesRepository(
     private val remote: GamesRemoteDataSource,
@@ -25,7 +23,6 @@ class GamesRepository(
             onSuccess = { dtos ->
                 val models = dtos.map { dto -> dto.toModel() }
                 local.insertGames(models)
-                Log.d(TAG, "✅ Insertados ${models.size} juegos en la BD local")
                 Result.success(models)
             },
             onFailure = { exception ->
@@ -51,14 +48,16 @@ class GamesRepository(
 
                     // Guardar en BD con TODOS los datos
                     local.insertGame(model)
-                    Log.d(TAG, "💾 Juego guardado en BD local con datos completos")
 
                     Result.success(model)
                 },
                 onFailure = { e ->
+                    if (e is CancellationException) {
+
+                        throw e
+                    }
                     Log.e(TAG, "❌ Error al obtener juego de la API: ${e.message}", e)
 
-                    // Solo usar caché si la API falla completamente
                     val localGame = local.getGameById(gameId)
                     if (localGame != null) {
                         Log.w(TAG, "⚠️ Usando juego del caché local: ${localGame.name}")
@@ -69,11 +68,91 @@ class GamesRepository(
                     }
                 }
             )
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e(TAG, "❌ Excepción en getGameById: ${e.message}", e)
             Result.failure(e)
         }
     }
+
+    override suspend fun getGamesByReleaseYear(year: Int, limit: Int): List<GameModel> {
+        val localGames = local.getGamesByReleaseYear(year, limit)
+        if (localGames.isNotEmpty()) {
+            return localGames
+        }
+        // Si no hay datos locales, consulta la API
+        val remoteGames = remote.getGamesByReleaseYear(year, limit)
+        if (remoteGames.isNotEmpty()) {
+            val localGameIds = local.getAllGameIds()
+            val newGames = remoteGames.filter { game -> !localGameIds.contains(game.id) }
+            if (newGames.isNotEmpty()) {
+                local.insertGames(newGames)
+                Log.d(TAG, "💾 Guardados ${newGames.size} juegos en BD local")
+            } else {
+                Log.d(TAG, "ℹ️ Todos los juegos ya existen en la BD local")
+            }
+        }
+        return remoteGames
+    }
+
+    override suspend fun getGamesByGenre(genre: String, limit: Int): List<GameModel> {
+        val localGames = local.getGamesByGenre(genre, limit)
+        if (localGames.isNotEmpty()) {
+            return localGames
+        }
+        val remoteGames = remote.getGamesByGenre(genre, limit)
+        if (remoteGames.isNotEmpty()) {
+            val localGameIds = local.getAllGameIds()
+            val newGames = remoteGames.filter { game -> !localGameIds.contains(game.id) }
+            if (newGames.isNotEmpty()) {
+                local.insertGames(newGames)
+                Log.d(TAG, "💾 Guardados ${newGames.size} juegos en BD local")
+            } else {
+                Log.d(TAG, "ℹ️ Todos los juegos ya existen en la BD local")
+            }
+        }
+        return remoteGames
+    }
+
+    override suspend fun getGamesByPlatform(platform: String, limit: Int): List<GameModel> {
+        val localGames = local.getGamesByPlatform(platform, limit)
+        if (localGames.isNotEmpty()) {
+            return localGames
+        }
+        val remoteGames = remote.getGamesByPlatform(platform, limit)
+        if (remoteGames.isNotEmpty()) {
+            val localGameIds = local.getAllGameIds()
+            val newGames = remoteGames.filter { game -> !localGameIds.contains(game.id) }
+            if (newGames.isNotEmpty()) {
+                local.insertGames(newGames)
+                Log.d(TAG, "💾 Guardados ${newGames.size} juegos en BD local")
+            } else {
+                Log.d(TAG, "ℹ️ Todos los juegos ya existen en la BD local")
+            }
+        }
+        return remoteGames
+    }
+
+    override suspend fun getGamesByDeveloper(developer: String, limit: Int): List<GameModel> {
+        val localGames = local.getGamesByDeveloper(developer, limit)
+        if (localGames.isNotEmpty()) {
+            return localGames
+        }
+        val remoteGames = remote.getGamesByDeveloper(developer, limit)
+        if (remoteGames.isNotEmpty()) {
+            val localGameIds = local.getAllGameIds()
+            val newGames = remoteGames.filter { game -> !localGameIds.contains(game.id) }
+            if (newGames.isNotEmpty()) {
+                local.insertGames(newGames)
+                Log.d(TAG, "💾 Guardados ${newGames.size} juegos en BD local")
+            } else {
+                Log.d(TAG, "ℹ️ Todos los juegos ya existen en la BD local")
+            }
+        }
+        return remoteGames
+    }
+
 
     /**
      * Mapea GameDto → GameModel con TODOS los campos

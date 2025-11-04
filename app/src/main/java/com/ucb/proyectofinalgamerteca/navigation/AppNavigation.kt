@@ -14,9 +14,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.ucb.proyectofinalgamerteca.features.games.presentation.DeveloperGamesScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GameDetailScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.GenreGamesScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.PlatformGamesScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.ReleaseYearGamesScreen
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginScreen
 import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileScreen
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScreen
@@ -25,7 +28,7 @@ import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.Startu
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigation(startDestination: String = Screen.Startup.route) {
+fun AppNavigation(startDestination: String = Screen.GamesList.route) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -96,7 +99,18 @@ fun AppNavigation(startDestination: String = Screen.Startup.route) {
                     onGameClick = { relatedGameId ->
                         navController.navigate(Screen.GameDetail.createRoute(relatedGameId))
                     },
-                    onGameClickPlatform = { platform -> navController.navigate(Screen.PlatformList.createRoute(platform)) }
+                    onGameClickGenre = { genre ->
+                        navController.navigate(Screen.GenreList.createRoute(genre))
+                    },
+                    onGameClickPlatform = { platform ->
+                        navController.navigate(Screen.PlatformList.createRoute(platform))
+                    },
+                    onGameClickReleaseYear = { year ->
+                        navController.navigate(Screen.ReleaseYearList.createRoute(year))
+                    },
+                    onGameClickDeveloper = { developer ->
+                        navController.navigate(Screen.DeveloperList.createRoute(developer))
+                    }
                 )
             }
 
@@ -122,18 +136,69 @@ fun AppNavigation(startDestination: String = Screen.Startup.route) {
                 SettingsScreen()
             }
 
-            composable(Screen.PlatformList.route,
-                arguments = listOf(navArgument("platform"){ type = NavType.StringType }))
-            {
-                backStackEntry ->
+            composable(
+                Screen.PlatformList.route,
+                arguments = listOf(navArgument("platform") { type = NavType.StringType })
+            )
+            { backStackEntry ->
                 val platform = backStackEntry.arguments?.getString("platform") ?: return@composable
                 PlatformGamesScreen(
                     platformName = platform,
-                    onGameClick = { gameId -> navController.navigate(Screen.GameDetail.createRoute(gameId)) },
+                    onGameClick = { gameId ->
+                        navController.navigate(
+                            Screen.GameDetail.createRoute(
+                                gameId
+                            )
+                        )
+                    },
                     onBackClick = { navController.popBackStack() },
 
+                    )
+            }
+
+            composable(
+                Screen.GenreList.route,
+                arguments = listOf(navArgument("genre") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val genre = backStackEntry.arguments?.getString("genre") ?: return@composable
+                GenreGamesScreen(
+                    genre = genre,
+                    onGameClick = { gameId ->
+                        navController.navigate(Screen.GameDetail.createRoute(gameId))
+                    },
+                    onBackClick = { navController.popBackStack() }
                 )
             }
+
+            composable(
+                Screen.ReleaseYearList.route,
+                arguments = listOf(navArgument("year") { type = NavType.IntType })
+            ) { backStackEntry ->
+                val year = backStackEntry.arguments?.getInt("year") ?: return@composable
+                ReleaseYearGamesScreen(
+                    year = year,
+                    onGameClick = { gameId ->
+                        navController.navigate(Screen.GameDetail.createRoute(gameId))
+                    },
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(
+                Screen.DeveloperList.route,
+                arguments = listOf(navArgument("developer") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val developer = backStackEntry.arguments?.getString("developer") ?: return@composable
+                DeveloperGamesScreen(
+                    developer = developer,
+                    onGameClick = { gameId ->
+                        navController.navigate(Screen.GameDetail.createRoute(gameId))
+                    },
+                    onBackClick = { navController.popBackStack() }
+                )
+            }
+
+
         }
     }
 }

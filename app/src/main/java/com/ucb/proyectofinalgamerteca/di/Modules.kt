@@ -8,10 +8,12 @@ import com.ucb.proyectofinalgamerteca.features.games.data.repository.GamesReposi
 import com.ucb.proyectofinalgamerteca.features.games.domain.repository.IGamesRepository
 import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.GetGameDetailsUseCase
 import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.GetPopularGamesUseCase
+import com.ucb.proyectofinalgamerteca.features.games.presentation.DeveloperGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GameDetailViewModel
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListViewModel
-import com.ucb.proyectofinalgamerteca.features.games.presentation.PlatformGamesScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.GenreGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.games.presentation.PlatformGamesViewModel
+import com.ucb.proyectofinalgamerteca.features.games.presentation.ReleaseYearGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.login.domain.usecase.LoginUseCase
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginViewModel
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterViewModel
@@ -39,7 +41,7 @@ val appModule = module {
     single {
         OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
-                level = HttpLoggingInterceptor.Level.BODY
+                level = HttpLoggingInterceptor.Level.NONE
             })
             .build()
     }
@@ -93,6 +95,9 @@ val appModule = module {
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel() }
     viewModel { PlatformGamesViewModel(get()) }
+    viewModel { GenreGamesViewModel(get()) }
+    viewModel { ReleaseYearGamesViewModel(get()) }
+    viewModel { DeveloperGamesViewModel(get()) }
 
     factory { LoginUseCase() }
 }

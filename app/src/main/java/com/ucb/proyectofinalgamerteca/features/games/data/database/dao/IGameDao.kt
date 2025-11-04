@@ -30,6 +30,17 @@ interface IGameDao {
     suspend fun getGamesCount(): Int
 
     @Query("""
+    SELECT * FROM games
+    WHERE genres = :genre
+       OR genres LIKE :genre || ',%'
+       OR genres LIKE '%,' || :genre || ',%'
+       OR genres LIKE '%,' || :genre
+    ORDER BY timestamp DESC
+    LIMIT :limit
+    """)
+    suspend fun getGamesByGenre(genre: String, limit: Int): List<GameEntity>
+
+    @Query("""
     SELECT * FROM games 
     WHERE platforms = :platform
        OR platforms LIKE :platform || ',%' 
@@ -40,5 +51,23 @@ interface IGameDao {
     """)
     suspend fun getGamesByPlatform(platform: String, limit: Int): List<GameEntity>
 
+    @Query("""
+    SELECT * FROM games
+    WHERE strftime('%Y', release_date / 1000, 'unixepoch') = :year
+    ORDER BY timestamp DESC
+    LIMIT :limit
+""")
+    suspend fun getGamesByReleaseYear(year: String, limit: Int): List<GameEntity>
+
+    @Query("""
+    SELECT * FROM games
+    WHERE involved_companies LIKE '%' || :developer || '%'
+    ORDER BY timestamp DESC
+    LIMIT :limit
+""")
+    suspend fun getGamesByDeveloper(developer: String, limit: Int): List<GameEntity>
+
+    @Query("SELECT id FROM games")
+    suspend fun getAllGameIds(): List<Long>
 
 }

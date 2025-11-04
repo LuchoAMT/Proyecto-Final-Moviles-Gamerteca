@@ -25,7 +25,6 @@ import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Gamepad
-import androidx.compose.material.icons.filled.Label
 import androidx.compose.material.icons.filled.LibraryBooks
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
@@ -66,8 +65,8 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ucb.proyectofinalgamerteca.R
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
-import okhttp3.internal.platform.Platform
 import org.koin.androidx.compose.koinViewModel
+import java.util.Calendar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,7 +76,10 @@ fun GameDetailScreen(
     vm: GameDetailViewModel = koinViewModel(),
     onBackClick: () -> Unit,
     onGameClick: (Long) -> Unit,
-    onGameClickPlatform: (String) -> Unit
+    onGameClickGenre: (String) -> Unit,
+    onGameClickPlatform: (String) -> Unit,
+    onGameClickReleaseYear: (Int) -> Unit,
+    onGameClickDeveloper: (String) -> Unit
 ) {
     val state by vm.state.collectAsState()
 
@@ -155,8 +157,12 @@ fun GameDetailScreen(
                     GameDetailContent(
                         game = currentState.game,
                         onGameClick = onGameClick,
+                        onGameClickGenre = onGameClickGenre,
                         onGameClickPlatform = onGameClickPlatform,
-                        viewModel = vm
+                        onGameClickReleaseYear = onGameClickReleaseYear,
+                        onGameClickDeveloper = onGameClickDeveloper,
+                        viewModel = vm,
+                        modifier = modifier
                     )
                 }
             }
@@ -168,7 +174,10 @@ fun GameDetailScreen(
 fun GameDetailContent(
     game: GameModel,
     onGameClick: (Long) -> Unit,
+    onGameClickGenre: (String) ->Unit,
     onGameClickPlatform: (String) ->Unit,
+    onGameClickReleaseYear: (Int) -> Unit,
+    onGameClickDeveloper: (String) -> Unit,
     viewModel: GameDetailViewModel,
     modifier: Modifier = Modifier
 ) {
@@ -230,11 +239,27 @@ fun GameDetailContent(
 
                     if (game.involvedCompanies.isNotEmpty()) {
                         Text(
-                            text = "Desarrolladores: ${game.involvedCompanies.joinToString(", ")}",
-             
+                            text = "Desarrolladores:",
+                            fontWeight = FontWeight.Bold,
                             fontSize = 14.sp,
-                            color = Color.Black.copy(alpha = 0.8f)
+                            color = Color.Black,
+                            modifier = Modifier.padding(top = 8.dp)
                         )
+                        LazyRow(
+                            modifier = Modifier.padding(vertical = 4.dp),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            items(game.involvedCompanies) { developer ->
+                                Text(
+                                    text = developer,
+                                    fontSize = 14.sp,
+                                    color = Color.Blue,
+                                    modifier = Modifier
+                                        .clickable { onGameClickDeveloper(developer) }
+                                        .padding(4.dp)
+                                )
+                            }
+                        }
                     }
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -372,22 +397,50 @@ fun GameDetailContent(
             Column(modifier = Modifier.padding(16.dp)) {
                 // Fecha
                 if (game.releaseDate != null) {
-                    DetailRow(
-                        icon = Icons.Default.DateRange,
-                        label = "Fecha de lanzamiento",
-                        value = game.getFormattedReleaseDate()
-                    )
+                    val calendar = Calendar.getInstance()
+                    calendar.timeInMillis = game.releaseDate * 1000
+                    val year = calendar.get(Calendar.YEAR)
+                    Row(
+                        modifier = Modifier
+                            .clickable { onGameClickReleaseYear(year) }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DateRange,
+                            contentDescription = "Fecha de lanzamiento",
+                            tint = Color.Gray,
+                            modifier = Modifier.padding(end = 8.dp)
+                        )
+                        Text(
+                            text = "Fecha de lanzamiento: ${game.getFormattedReleaseDate()}",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.Black
+                        )
+                    }
                     Divider(color = Color.Gray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 8.dp))
                 }
 
                 // Géneros
                 if (game.genres.isNotEmpty()) {
-                    DetailRow(
-                        icon = Icons.Default.Label,
-                        label = "Géneros",
-                        value = game.genres.joinToString(", ")
+                    Text(
+                        text = "Géneros",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = Color.Black,
+                        modifier = Modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp)
                     )
-                    Divider(color = Color.Gray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 8.dp))
+                    LazyRow(
+                        modifier = Modifier.padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        items(game.genres) { genreName ->
+                            GenreChip(
+                                genreName = genreName,
+                                onClick = { selectedGenre -> onGameClickGenre(selectedGenre) }
+                            )
+                        }
+                    }
                 }
 
                 // Plataformas
@@ -578,6 +631,35 @@ fun DetailRow(
         }
     }
 }
+
+@Composable
+fun GenreChip(
+    genreName: String,
+    onClick: (String) -> Unit
+) {
+    Card(
+        modifier = Modifier
+            .height(40.dp)
+            .padding(4.dp)
+            .clickable {
+                onClick(genreName.trim())
+            },
+        colors = CardDefaults.cardColors(containerColor = Color(0xFF9E9E9E))
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(
+                text = genreName,
+                fontSize = 12.sp,
+                color = Color.Black
+            )
+        }
+    }
+}
+
 
 @Composable
 fun PlatformChip(

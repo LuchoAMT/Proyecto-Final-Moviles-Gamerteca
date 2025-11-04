@@ -54,7 +54,6 @@ class GamesLocalDataSource(
                 timestamp = System.currentTimeMillis()
             )
         )
-        Log.d("GamesLocalDataSource", "💾 Insertado juego: ${game.name}")
     }
 
     suspend fun getRecentGames(limit: Int): List<GameModel> {
@@ -69,7 +68,25 @@ class GamesLocalDataSource(
         return dao.getGamesCount()
     }
 
+    suspend fun getGamesByGenre(genre: String, limit: Int): List<GameModel> {
+        val normalizedGenre = genre.trim()
+        return dao.getGamesByGenre(normalizedGenre, limit).map { it.toModel() }
+    }
+
     suspend fun getGamesByPlatform(platform:String, limit: Int): List<GameModel> {
         return dao.getGamesByPlatform(platform = platform, limit = limit).map { it.toModel() }
     }
+
+    suspend fun getGamesByReleaseYear(year: Int, limit: Int): List<GameModel> {
+        return dao.getGamesByReleaseYear(year.toString(), limit).map { it.toModel() }
+    }
+
+    suspend fun getGamesByDeveloper(developer: String, limit: Int): List<GameModel> {
+        return dao.getGamesByDeveloper(developer, limit).map { it.toModel() }
+    }
+
+    suspend fun getAllGameIds(): List<Long> {
+        return dao.getAllGameIds()
+    }
+
 }

@@ -10,30 +10,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
-class PlatformGamesViewModel (
+class ReleaseYearGamesViewModel(
     private val repository: IGamesRepository
 ) : ViewModel() {
-
     private val _uiState = MutableStateFlow<UiState>(UiState.Init)
     val state: StateFlow<UiState> = _uiState
 
     sealed class UiState {
-        object Init: UiState()
+        object Init : UiState()
         object Loading : UiState()
         data class Success(val games: List<GameModel>) : UiState()
         data class Error(val message: String) : UiState()
     }
 
-    fun loadGamesByPlatform(platform: String, limit: Int = 50) {
+    fun loadGamesByReleaseYear(year: Int, limit: Int = 50) {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             try {
-                val games = repository.getGamesByPlatform(platform, limit)
+                val games = repository.getGamesByReleaseYear(year, limit)
                 _uiState.value = UiState.Success(games)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("PlatformGamesViewModel", "Error al cargar juegos por plataforma", e)
+                Log.e("ReleaseYearGamesViewModel", "Error al cargar juegos por año", e)
                 _uiState.value = UiState.Error(e.message ?: "Error al cargar")
             }
         }

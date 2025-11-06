@@ -1,7 +1,7 @@
 package com.ucb.proyectofinalgamerteca.features.register.presentation
 
 data class RegisterUiState(
-    val nickname: String = "",
+    val username: String = "",
     val email: String = "",
     val password: String = "",
     val confirmPasssword: String = "",

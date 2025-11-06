@@ -104,7 +104,7 @@ fun RegisterScreen(
         Spacer(Modifier.height(24.dp))
 
         OutlinedTextField(
-            value = uiState.nickname,
+            value = uiState.username,
             onValueChange = viewModel::onNameChange,
             label = { Text("Nombre completo") },
             singleLine = true,

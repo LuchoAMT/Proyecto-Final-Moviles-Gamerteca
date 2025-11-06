@@ -28,7 +28,7 @@ import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.Startu
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun AppNavigation(startDestination: String = Screen.GamesList.route) {
+fun AppNavigation(startDestination: String) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -68,7 +68,11 @@ fun AppNavigation(startDestination: String = Screen.GamesList.route) {
             // Register
             composable(Screen.Register.route) {
                 RegisterScreen(
-                    onRegisterSuccess = { navController.navigate(Screen.GamesList.route) },
+                    onRegisterSuccess = {
+                        navController.navigate(Screen.GamesList.route) {
+                          popUpTo(Screen.Startup.route) { inclusive = true }
+                        }
+                    },
                     onNavigateToLogin = {
                         navController.navigate(Screen.Login.route) {
                             popUpTo(Screen.Login.route) { inclusive = true }

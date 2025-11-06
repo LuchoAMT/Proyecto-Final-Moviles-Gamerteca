@@ -1,5 +1,8 @@
 package com.ucb.proyectofinalgamerteca.di
 
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
+import com.ucb.proyectofinalgamerteca.features.auth.data.repository.FirebaseRepository
 import com.ucb.proyectofinalgamerteca.features.games.data.api.IgdbService
 import com.ucb.proyectofinalgamerteca.features.games.data.database.GamesRoomDatabase
 import com.ucb.proyectofinalgamerteca.features.games.data.datasource.GamesLocalDataSource
@@ -78,10 +81,16 @@ val appModule = module {
     single<IGamesRepository> {
         GamesRepository(remote = get(), local = get())
     }
+    single { FirebaseRepository() }
 
     // Use Cases
     single { GetPopularGamesUseCase(repository = get()) }
     single { GetGameDetailsUseCase(repository = get()) }
+    factory { LoginUseCase() }
+
+    // Firebase
+    single { FirebaseAuth.getInstance() }
+    single { FirebaseFirestore.getInstance() }
 
     // ViewModels
     viewModel { GamesListViewModel(getPopularGames = get()) }
@@ -93,11 +102,12 @@ val appModule = module {
     }
     viewModel { StartupViewModel() }
     viewModel { LoginViewModel(get()) }
-    viewModel { RegisterViewModel() }
+    viewModel { RegisterViewModel(get()) }
     viewModel { PlatformGamesViewModel(get()) }
     viewModel { GenreGamesViewModel(get()) }
     viewModel { ReleaseYearGamesViewModel(get()) }
     viewModel { DeveloperGamesViewModel(get()) }
 
-    factory { LoginUseCase() }
+
+//    factory { LoginViewModel(get()) }
 }

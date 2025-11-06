@@ -2,18 +2,18 @@ package com.ucb.proyectofinalgamerteca.features.register.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.util.copy
+import com.ucb.proyectofinalgamerteca.features.auth.data.repository.FirebaseRepository
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class RegisterViewModel : ViewModel() {
+class RegisterViewModel(private val repo: FirebaseRepository = FirebaseRepository()) : ViewModel() {
     private val _uiState = MutableStateFlow(RegisterUiState())
     val uiState: StateFlow<RegisterUiState> = _uiState
 
     fun onNameChange(newValue: String) {
-        _uiState.value = _uiState.value.copy(nickname = newValue)
+        _uiState.value = _uiState.value.copy(username = newValue)
     }
 
     fun onEmailChange(newValue: String) {
@@ -32,7 +32,7 @@ class RegisterViewModel : ViewModel() {
         val current = _uiState.value
 
         // Validaciones básicas
-        if (current.nickname.isBlank() || current.email.isBlank() ||
+        if (current.username.isBlank() || current.email.isBlank() ||
             current.password.isBlank() || current.confirmPasssword.isBlank()
         ) {
             _uiState.value = current.copy(errorMessage = "Por favor completa todos los campos")
@@ -44,15 +44,17 @@ class RegisterViewModel : ViewModel() {
             return
         }
 
-        // Simular proceso de registro
         viewModelScope.launch {
-            _uiState.value = current.copy(isLoading = true, errorMessage = null)
-            delay(1500) // simula llamada a backend o Firebase
-
-            _uiState.value = _uiState.value.copy(
-                isLoading = false,
-                success = true
-            )
+            _uiState.value = _uiState.value.copy(isLoading = true)
+            val result = repo.registerUser(_uiState.value.email, _uiState.value.password, _uiState.value.username)
+            _uiState.value = if (result.isSuccess) {
+                _uiState.value.copy(success = true, isLoading = false)
+            } else {
+                _uiState.value.copy(
+                    errorMessage = result.exceptionOrNull()?.message,
+                    isLoading = false
+                )
+            }
         }
     }
 }

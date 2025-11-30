@@ -69,6 +69,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     ksp(libs.androidx.room.compiler)
+    implementation(libs.firebase.firestore.ktx)
 
     // Retrofit
     implementation(libs.retrofit)
@@ -98,4 +99,6 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.androidx.appcompat)
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.firestore.ktx)
 }

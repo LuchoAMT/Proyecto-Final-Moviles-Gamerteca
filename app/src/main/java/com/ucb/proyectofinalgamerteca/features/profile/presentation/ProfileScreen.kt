@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,13 +21,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,21 +40,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ucb.proyectofinalgamerteca.R
+import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
-    onBackClick: () -> Unit = {}
+    onBackClick: () -> Unit = {},
+    viewModel: ProfileViewModel = koinViewModel()
 ) {
-
+    val state by viewModel.uiState.collectAsState()
     var isEditing by remember { mutableStateOf(false) }
 
-    var username by remember { mutableStateOf("Test") }
-    var email by remember { mutableStateOf("test@gmail.com") }
-    var phone by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("123456") }
+    var username by remember(state.username) { mutableStateOf(state.username) }
+    var email by remember(state.email) { mutableStateOf(state.email) }
+    var phone by remember(state.phone) { mutableStateOf(state.phone) }
+    var password by remember(state.password) { mutableStateOf(state.password) }
 
     Scaffold(
         topBar = {
@@ -109,7 +108,7 @@ fun ProfileScreen(
             Spacer(Modifier.height(16.dp))
 
             OutlinedTextField(
-                value = username,
+                value = if (isEditing) username else state.username,
                 onValueChange = { username = it },
                 label = { Text("Nombre de usuario") },
                 modifier = Modifier.fillMaxWidth(),
@@ -119,7 +118,7 @@ fun ProfileScreen(
             Spacer(Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = email,
+                value = if (isEditing) email else state.email,
                 onValueChange = { email = it },
                 label = { Text("Correo Electrónico") },
                 modifier = Modifier.fillMaxWidth(),

@@ -63,5 +63,18 @@ class FirebaseRepository(
         }
     }
 
+    suspend fun getUserProfile(userId: String): Result<Map<String, Any?>> {
+        return try {
+            val snapshot = db.collection("users").document(userId).get().await()
+            if (snapshot.exists()) {
+                Result.success(snapshot.data ?: emptyMap())
+            } else {
+                Result.failure(Exception("Usuario no encontrado"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     fun getCurrentUserId(): String? = auth.currentUser?.uid
 }

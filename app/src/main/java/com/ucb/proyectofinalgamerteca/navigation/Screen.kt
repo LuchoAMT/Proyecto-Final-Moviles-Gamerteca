@@ -23,4 +23,8 @@ sealed class Screen(val route: String) {
     object DeveloperList : Screen("developer_list/{developer}") {
         fun createRoute(developer: String) = "developer_list/$developer"
     }
+    // Ruta dinámica para el tipo de filtro (favorites, played, owned, etc.)
+    object UserGames : Screen("user_games/{filter}") {
+        fun createRoute(filter: String) = "user_games/$filter"
+    }
 }

@@ -2,9 +2,15 @@ package com.ucb.proyectofinalgamerteca.features.games.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ucb.proyectofinalgamerteca.features.auth.data.repository.FirebaseRepository
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
 import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.GetGameDetailsUseCase
 import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.GetPopularGamesUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.model.GameStatus
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.AddGameToLibraryUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.GetUserGameInteractionUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.SetUserRatingUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.ToggleFavoriteUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,11 +19,13 @@ import kotlinx.coroutines.launch
 
 class GameDetailViewModel(
     private val getGameDetails: GetGameDetailsUseCase,
-    private val getPopularGames: GetPopularGamesUseCase
+    private val getPopularGames: GetPopularGamesUseCase,
+    private val addGameToLibrary: AddGameToLibraryUseCase,
+    private val getUserInteraction: GetUserGameInteractionUseCase,
+    private val toggleFavorite: ToggleFavoriteUseCase,
+    private val setUserRating: SetUserRatingUseCase,
+    private val repo: FirebaseRepository
 ) : ViewModel() {
-    // Estado para juegos relacionados
-    private val _relatedGames = MutableStateFlow<List<GameModel>>(emptyList())
-    val relatedGames: StateFlow<List<GameModel>> = _relatedGames.asStateFlow()
 
     sealed class UiState {
         object Init : UiState()
@@ -26,21 +34,94 @@ class GameDetailViewModel(
         data class Error(val message: String) : UiState()
     }
 
+    data class UserInteractionState(
+        val isFavorite: Boolean = false,
+        val userRating: Int = 0,
+        val status: GameStatus? = null,
+        val isLoading: Boolean = false
+    )
+
     private val _state = MutableStateFlow<UiState>(UiState.Init)
     val state: StateFlow<UiState> = _state.asStateFlow()
+
+    private val _userState = MutableStateFlow(UserInteractionState())
+    val userState: StateFlow<UserInteractionState> = _userState.asStateFlow()
+
+    private val _relatedGames = MutableStateFlow<List<GameModel>>(emptyList())
+    val relatedGames: StateFlow<List<GameModel>> = _relatedGames.asStateFlow()
+
+    private var currentGame: GameModel? = null
 
     fun loadGameDetails(gameId: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             _state.value = UiState.Loading
+
+            // 1. Cargar detalle API
             val result = getGameDetails(gameId)
             result.fold(
                 onSuccess = { game ->
+                    currentGame = game
                     _state.value = UiState.Success(game)
+
+                    // 2. Cargar interacción de usuario (usando el ID del repo)
+                    repo.getCurrentUserId()?.let { uid ->
+                        loadUserInteraction(uid, gameId)
+                    }
                 },
-                onFailure = { exception ->
-                    _state.value = UiState.Error(exception.message ?: "Error desconocido")
-                }
+                onFailure = { _state.value = UiState.Error(it.message ?: "Error") }
             )
+        }
+    }
+
+    private suspend fun loadUserInteraction(uid: String, gameId: Long) {
+        getUserInteraction(uid, gameId).onSuccess { userGame ->
+            _userState.value = _userState.value.copy(
+                isFavorite = userGame?.isFavorite ?: false,
+                userRating = userGame?.userRating ?: 0,
+                status = userGame?.status
+            )
+        }
+    }
+
+    // --- Acciones de UI ---
+
+    fun onStatusSelected(status: GameStatus) {
+        val game = currentGame ?: return
+        val uid = repo.getCurrentUserId() ?: return
+
+        val newStatus = if (_userState.value.status == status) null else status
+        _userState.value = _userState.value.copy(status = newStatus)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            addGameToLibrary(uid, game, newStatus)
+        }
+    }
+
+    fun onToggleFavorite() {
+        val game = currentGame ?: return
+        val uid = repo.getCurrentUserId() ?: return
+
+        val newFav = !_userState.value.isFavorite
+        _userState.value = _userState.value.copy(isFavorite = newFav)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            // Aseguramos que el juego exista en la librería al marcar fav
+            addGameToLibrary(uid, game, _userState.value.status)
+            toggleFavorite(uid, game.id, newFav)
+        }
+    }
+
+    fun onRatingChanged(rating: Int) {
+        val game = currentGame ?: return
+        val uid = repo.getCurrentUserId() ?: return
+
+        val newRating = if (_userState.value.userRating == rating) 0 else rating
+
+        _userState.value = _userState.value.copy(userRating = newRating)
+
+        viewModelScope.launch(Dispatchers.IO) {
+            addGameToLibrary(uid, game, _userState.value.status)
+            setUserRating(uid, game.id, newRating)
         }
     }
 

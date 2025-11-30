@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -42,19 +43,17 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ucb.proyectofinalgamerteca.R
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SettingsScreen(
-    userName: String = "test",
-    email: String = "test@gmail.com",
-    profileImageUrl: String? = null,
-    onNavigateToReviews: () -> Unit = {},
-    onNavigateToGames: () -> Unit = {},
-    onNavigateToLists: () -> Unit = {},
-    onNavigateToFavorites: () -> Unit = {},
+    viewModel: SettingsViewModel = koinViewModel(),
+    onNavigateToUserLibrary: (String) -> Unit = {},
     onNavigateToLanguage: () -> Unit = {},
     onToggleDarkMode: (Boolean) -> Unit = {}
 ) {
+    val state by viewModel.uiState.collectAsState()
+
     var isDarkMode by remember { mutableStateOf(false) }
 
     Column(
@@ -62,7 +61,7 @@ fun SettingsScreen(
             .fillMaxSize()
             .background(Color.White)
     ) {
-
+        // Cabecera con datos del usuario
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -72,7 +71,7 @@ fun SettingsScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 AsyncImage(
-                    model = profileImageUrl ?: R.drawable.v1_default_profile,
+                    model = state.profileImageUrl ?: R.drawable.v1_default_profile,
                     contentDescription = "Imagen de perfil",
                     modifier = Modifier
                         .size(100.dp)
@@ -80,14 +79,16 @@ fun SettingsScreen(
                     contentScale = ContentScale.Crop
                 )
                 Spacer(modifier = Modifier.height(8.dp))
+
+                // Usamos los datos del estado
                 Text(
-                    text = userName,
+                    text = state.userName,
                     color = Color.White,
                     fontWeight = FontWeight.Bold,
                     fontSize = 18.sp
                 )
                 Text(
-                    text = email,
+                    text = state.email,
                     color = Color.White.copy(alpha = 0.9f),
                     fontSize = 14.sp
                 )
@@ -109,26 +110,28 @@ fun SettingsScreen(
                 modifier = Modifier.padding(vertical = 8.dp)
             )
 
+            // Navegación conectada a los filtros
             SettingsItem(
                 icon = Icons.Default.Star,
                 title = "Mis Reseñas",
-                onClick = onNavigateToReviews
+                onClick = { onNavigateToUserLibrary("reviews") }
             )
             SettingsItem(
                 icon = Icons.Default.SportsEsports,
                 title = "Mis Juegos",
-                onClick = onNavigateToGames
+                onClick = { onNavigateToUserLibrary("all") } // Filtro para biblioteca
             )
             SettingsItem(
                 icon = Icons.AutoMirrored.Filled.List,
                 title = "Mis Listas",
-                onClick = onNavigateToLists
+                onClick = { onNavigateToUserLibrary("lists") } // Filtro para listas
             )
             SettingsItem(
                 icon = Icons.Default.FavoriteBorder,
                 title = "Favoritos",
-                onClick = onNavigateToFavorites
+                onClick = { onNavigateToUserLibrary("favorites") } // Filtro para favoritos
             )
+
             SettingsItem(
                 icon = Icons.Default.Language,
                 title = "Lenguaje",

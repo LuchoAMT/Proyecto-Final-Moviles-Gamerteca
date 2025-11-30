@@ -19,8 +19,21 @@ import com.ucb.proyectofinalgamerteca.features.games.presentation.PlatformGamesV
 import com.ucb.proyectofinalgamerteca.features.games.presentation.ReleaseYearGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.login.domain.usecase.LoginUseCase
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginViewModel
+import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileViewModel
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterViewModel
+import com.ucb.proyectofinalgamerteca.features.settings.presentation.SettingsViewModel
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupViewModel
+import com.ucb.proyectofinalgamerteca.features.user_library.data.repository.UserLibraryRepository
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.repository.IUserLibraryRepository
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.AddGameToLibraryUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.AddGameToListUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.AddReviewUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.CreateCustomListUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.GetUserGameInteractionUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.GetUserListsUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.SetUserRatingUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.ToggleFavoriteUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.presentation.UserGamesViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -32,7 +45,11 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 
 val appModule = module {
-    // Configuración
+    // =============================================================================================
+    // 1. CONFIGURACIÓN Y EXTERNOS (Firebase, Retrofit, OkHttp)
+    // =============================================================================================
+
+    // Credenciales IGDB
     single(named("igdb_client_id")) {
         "s5jtkakjst6oe0ngkk8cjb2w45edm0"
     }
@@ -40,7 +57,11 @@ val appModule = module {
         "dhszlba7qkzsra4iwh1mbtmbhpuuol"
     }
 
-    // OkHttpClient
+    // Firebase Instances
+    single { FirebaseAuth.getInstance() }
+    single { FirebaseFirestore.getInstance() }
+
+    // Cliente HTTP
     single {
         OkHttpClient.Builder()
             .addInterceptor(HttpLoggingInterceptor().apply {
@@ -58,16 +79,22 @@ val appModule = module {
             .build()
     }
 
-    // Service
+    // Servicios API
     single<IgdbService> {
         get<Retrofit>(named("igdb_retrofit")).create(IgdbService::class.java)
     }
 
-    // Database
+    // =============================================================================================
+    // 2. BASE DE DATOS LOCAL (Room)
+    // =============================================================================================
+
     single { GamesRoomDatabase.getDatabase(androidContext()) }
     single { get<GamesRoomDatabase>().gameDao() }
 
-    // Data Sources
+    // =============================================================================================
+    // 3. FUENTES DE DATOS (Data Sources)
+    // =============================================================================================
+
     single {
         GamesRemoteDataSource(
             service = get(),
@@ -77,37 +104,81 @@ val appModule = module {
     }
     single { GamesLocalDataSource(dao = get()) }
 
-    // Repository
+    // =============================================================================================
+    // 4. REPOSITORIOS
+    // =============================================================================================
+
+    // Repositorio de Juegos (API + Room)
     single<IGamesRepository> {
         GamesRepository(remote = get(), local = get())
     }
-    single { FirebaseRepository() }
 
-    // Use Cases
+    // Repositorio de Librería de Usuario (Firebase Firestore)
+    single<IUserLibraryRepository> {
+        UserLibraryRepository(db = get())
+    }
+
+    // Repositorio de Autenticación y Usuario
+    single {
+        FirebaseRepository(auth = get(), db = get())
+    }
+
+    // =============================================================================================
+    // 5. CASOS DE USO (Use Cases)
+    // =============================================================================================
+
+    // --- Juegos ---
     single { GetPopularGamesUseCase(repository = get()) }
     single { GetGameDetailsUseCase(repository = get()) }
+
+    // --- Librería de Usuario ---
+    factory { AddGameToLibraryUseCase(get()) }
+    factory { GetUserGameInteractionUseCase(get()) }
+    factory { ToggleFavoriteUseCase(get()) }
+    factory { SetUserRatingUseCase(get()) }
+    factory { CreateCustomListUseCase(get()) }
+    factory { GetUserListsUseCase(get()) }
+    factory { AddGameToListUseCase(get()) }
+    factory { AddReviewUseCase(get()) }
+
+    // --- Auth ---
     factory { LoginUseCase() }
 
-    // Firebase
-    single { FirebaseAuth.getInstance() }
-    single { FirebaseFirestore.getInstance() }
+    // =============================================================================================
+    // 6. VIEW MODELS
+    // =============================================================================================
 
-    // ViewModels
-    viewModel { GamesListViewModel(getPopularGames = get()) }
-    viewModel {
-        GameDetailViewModel(
-            getGameDetails = get(),
-            getPopularGames = get()
-        )
-    }
+    // --- Flujo Principal ---
     viewModel { StartupViewModel() }
     viewModel { LoginViewModel(get()) }
     viewModel { RegisterViewModel(get()) }
+
+    // --- Perfil y Configuración ---
+    viewModel { ProfileViewModel(repo = get()) }
+    viewModel { SettingsViewModel(repo = get()) }
+
+    // --- Listas y Biblioteca ---
+    viewModel { GamesListViewModel(getPopularGames = get()) }
+
+    // Lista de juegos del usuario (Favoritos, jugados, etc.)
+    viewModel { UserGamesViewModel(libraryRepository = get(), authRepo = get(), gamesRepository = get()) }
+
+    // Detalle del Juego
+    viewModel {
+        GameDetailViewModel(
+            getGameDetails = get(),
+            getPopularGames = get(),
+            addGameToLibrary = get(),
+            getUserInteraction = get(),
+            toggleFavorite = get(),
+            setUserRating = get(),
+            repo = get()
+        )
+    }
+
+    // --- Filtros Específicos ---
     viewModel { PlatformGamesViewModel(get()) }
     viewModel { GenreGamesViewModel(get()) }
     viewModel { ReleaseYearGamesViewModel(get()) }
     viewModel { DeveloperGamesViewModel(get()) }
-
-
-//    factory { LoginViewModel(get()) }
 }

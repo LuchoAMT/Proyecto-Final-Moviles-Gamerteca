@@ -52,6 +52,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
@@ -65,6 +67,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ucb.proyectofinalgamerteca.R
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.model.GameStatus
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
 
@@ -182,8 +185,7 @@ fun GameDetailContent(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    var userRating by remember { mutableStateOf(0) }
-    var isFavorite by remember { mutableStateOf(false) }
+    val userState by viewModel.userState.collectAsState()
 
     Column(
         modifier = modifier
@@ -293,32 +295,37 @@ fun GameDetailContent(
                 text = "Jugado",
                 icon = Icons.Default.Gamepad,
                 color = Color(0xFF81C784),
+                isSelected = userState.status == GameStatus.PLAYED,
+                onClick = { viewModel.onStatusSelected(GameStatus.PLAYED)},
                 modifier = Modifier.weight(1f)
             )
             GameStatusButton(
                 text = "Jugando",
                 icon = Icons.Default.PlayArrow,
                 color = Color(0xFF64B5F6),
+                isSelected = userState.status == GameStatus.PLAYING,
+                onClick = { viewModel.onStatusSelected(GameStatus.PLAYING)},
                 modifier = Modifier.weight(1f)
             )
             GameStatusButton(
                 text = "Biblioteca",
                 icon = Icons.Default.LibraryBooks,
                 color = Color(0xFFFFEB3B),
+                isSelected = userState.status == GameStatus.OWNED,
+                onClick = { viewModel.onStatusSelected(GameStatus.OWNED)},
                 modifier = Modifier.weight(1f)
             )
             GameStatusButton(
                 text = "Lo quiero",
                 icon = Icons.Default.CardGiftcard,
                 color = Color(0xFFEF9A9A),
+                isSelected = userState.status == GameStatus.WISHLIST,
+                onClick = { viewModel.onStatusSelected(GameStatus.WISHLIST )},
                 modifier = Modifier.weight(1f)
             )
         }
 
         // Rating y Favorito
-
-        var userRating by remember { mutableStateOf(0) }
-        var isFavorite by remember { mutableStateOf(false) }
 
         Card(
             modifier = Modifier
@@ -337,25 +344,26 @@ fun GameDetailContent(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     (1..5).forEach { index ->
                         Icon(
-                            imageVector = if (index <= userRating) Icons.Filled.Star else Icons.Outlined.Star,
+                            imageVector = if (index <= userState.userRating) Icons.Filled.Star else Icons.Outlined.Star,
                             contentDescription = null,
-                            tint = if (index <= userRating) Color(0xFFFFD700) else Color.Gray,
+                            tint = if (index <= userState.userRating) Color(0xFFFFD700) else Color.Gray,
                             modifier = Modifier
                                 .size(28.dp)
-                                .clickable { userRating = if (userRating == index) 0 else index }
+                                .clickable { viewModel.onRatingChanged(index) }
                         )
                     }
                     Spacer(modifier = Modifier.width(8.dp))
                 }
+
                 // Botón de Favoritos
                 IconToggleButton(
-                    checked = isFavorite,
-                    onCheckedChange = { isFavorite = it }
+                    checked = userState.isFavorite,
+                    onCheckedChange = { viewModel.onToggleFavorite() }
                 ) {
                     Icon(
-                        imageVector = if (isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
+                        imageVector = if (userState.isFavorite) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder,
                         contentDescription = "Favorito",
-                        tint = if (isFavorite) Color(0xFFE52128) else Color.White
+                        tint = if (userState.isFavorite) Color(0xFFE52128) else Color.Gray
                     )
                 }
             }
@@ -415,7 +423,16 @@ fun GameDetailContent(
                         Text(
                             text = "Fecha de lanzamiento: ${game.getFormattedReleaseDate()}",
                             style = MaterialTheme.typography.bodyMedium,
-                            color = Color.Black
+                            color = Color.Blue,  // Cambia el color a azul
+                            modifier = Modifier
+                                .drawBehind {
+                                    drawLine(
+                                        color = Color.Blue,
+                                        start = Offset(0f, size.height),
+                                        end = Offset(size.width, size.height),
+                                        strokeWidth = 2f
+                                    )
+                                }
                         )
                     }
                     Divider(color = Color.Gray.copy(alpha = 0.3f), modifier = Modifier.padding(vertical = 8.dp))
@@ -562,9 +579,10 @@ fun GameStatusButton(
     text: String,
     icon: ImageVector,
     color: Color,
+    isSelected: Boolean,
+    onClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
-    var isSelected by remember { mutableStateOf(false) }
 
     Card(
         modifier = modifier
@@ -577,7 +595,7 @@ fun GameStatusButton(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .clickable { isSelected = !isSelected }
+                .clickable { onClick() }
                 .padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -593,40 +611,6 @@ fun GameStatusButton(
                 text = text,
                 style = MaterialTheme.typography.labelMedium,
                 color = if (isSelected) Color.Black else MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        }
-    }
-}
-
-
-@Composable
-fun DetailRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    label: String,
-    value: String
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Icon(
-            imageVector = icon,
-            contentDescription = null,
-            tint = Color(0xFFE52128),
-            modifier = Modifier.size(20.dp)
-        )
-        Spacer(modifier = Modifier.width(12.dp))
-        Column {
-            Text(
-                text = label,
-                fontWeight = FontWeight.SemiBold,
-                fontSize = 14.sp,
-                color = Color.Black
-            )
-            Text(
-                text = value,
-                fontSize = 13.sp,
-                color = Color.Black.copy(alpha = 0.8f)
             )
         }
     }

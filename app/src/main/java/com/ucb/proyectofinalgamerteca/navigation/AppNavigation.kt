@@ -25,6 +25,7 @@ import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileScree
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScreen
 import com.ucb.proyectofinalgamerteca.features.settings.presentation.SettingsScreen
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupScreen
+import com.ucb.proyectofinalgamerteca.features.user_library.presentation.UserGamesScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -100,21 +101,11 @@ fun AppNavigation(startDestination: String) {
                 GameDetailScreen(
                     gameId = gameId,
                     onBackClick = { navController.popBackStack() },
-                    onGameClick = { relatedGameId ->
-                        navController.navigate(Screen.GameDetail.createRoute(relatedGameId))
-                    },
-                    onGameClickGenre = { genre ->
-                        navController.navigate(Screen.GenreList.createRoute(genre))
-                    },
-                    onGameClickPlatform = { platform ->
-                        navController.navigate(Screen.PlatformList.createRoute(platform))
-                    },
-                    onGameClickReleaseYear = { year ->
-                        navController.navigate(Screen.ReleaseYearList.createRoute(year))
-                    },
-                    onGameClickDeveloper = { developer ->
-                        navController.navigate(Screen.DeveloperList.createRoute(developer))
-                    }
+                    onGameClick = { id -> navController.navigate(Screen.GameDetail.createRoute(id)) },
+                    onGameClickGenre = { genre -> navController.navigate(Screen.GenreList.createRoute(genre)) },
+                    onGameClickPlatform = { platform -> navController.navigate(Screen.PlatformList.createRoute(platform)) },
+                    onGameClickReleaseYear = { year -> navController.navigate(Screen.ReleaseYearList.createRoute(year)) },
+                    onGameClickDeveloper = { developer -> navController.navigate(Screen.DeveloperList.createRoute(developer)) }
                 )
             }
 
@@ -137,7 +128,11 @@ fun AppNavigation(startDestination: String) {
             }
 
             composable(Screen.Settings.route) {
-                SettingsScreen()
+                SettingsScreen(
+                    onNavigateToUserLibrary = { filter ->
+                        navController.navigate(Screen.UserGames.createRoute(filter))
+                    },
+                )
             }
 
             composable(
@@ -202,6 +197,19 @@ fun AppNavigation(startDestination: String) {
                 )
             }
 
+            composable(
+                route = Screen.UserGames.route,
+                arguments = listOf(navArgument("filter") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val filter = backStackEntry.arguments?.getString("filter") ?: "owned"
+                UserGamesScreen(
+                    filter = filter,
+                    onBackClick = { navController.popBackStack() },
+                    onGameClick = { gameId ->
+                        navController.navigate(Screen.GameDetail.createRoute(gameId))
+                    }
+                )
+            }
 
         }
     }

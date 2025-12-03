@@ -34,7 +34,9 @@ import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.GetUs
 import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.GetUserListsUseCase
 import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.SetUserRatingUseCase
 import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.ToggleFavoriteUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.presentation.ListDetailViewModel
 import com.ucb.proyectofinalgamerteca.features.user_library.presentation.UserGamesViewModel
+import com.ucb.proyectofinalgamerteca.features.user_library.presentation.UserListsViewModel
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import org.koin.android.ext.koin.androidContext
@@ -170,9 +172,26 @@ val appModule = module {
         )
     }
 
-    // Listas Públicas (Tab "Listas")
+    // Listas del usuario
     viewModel {
         PublicListsViewModel(
+            libraryRepo = get(),
+            gamesRepo = get(),
+            authRepo = get(),
+            createCustomListUseCase = get()
+        )
+    }
+
+    viewModel {
+        UserListsViewModel(
+            getUserLists = get(),
+            gamesRepo = get(),
+            authRepo = get()
+        )
+    }
+
+    viewModel {
+        ListDetailViewModel(
             libraryRepo = get(),
             gamesRepo = get()
         )

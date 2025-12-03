@@ -156,8 +156,8 @@ class GameDetailViewModel(
         _showListDialog.value = true
         // Cargamos las listas al abrir el diálogo
         viewModelScope.launch(Dispatchers.IO) {
-            getUserLists(uid).onSuccess { lists ->
-                _userLists.value = lists
+            getUserLists(uid).onSuccess { result ->
+                _userLists.value = result.first
             }
         }
     }
@@ -166,7 +166,7 @@ class GameDetailViewModel(
         _showListDialog.value = false
     }
 
-    fun onCreateList(listName: String, isPublic: Boolean) {
+    fun onCreateList(listName: String, description: String, isPublic: Boolean) {
         val uid = repo.getCurrentUserId() ?: return
 
         viewModelScope.launch(Dispatchers.IO) {
@@ -175,12 +175,14 @@ class GameDetailViewModel(
 
             val newList = CustomGameList(
                 name = listName,
+                description = description,
                 isPublic = isPublic,
                 ownerName = userName
             )
+
             createCustomList(uid, newList).onSuccess {
-                getUserLists(uid).onSuccess { lists ->
-                    _userLists.value = lists
+                getUserLists(uid).onSuccess { result ->
+                    _userLists.value = result.first
                 }
             }
         }

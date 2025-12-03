@@ -207,7 +207,7 @@ fun GameDetailContent(
             lists = userLists,
             onDismiss = { viewModel.closeListDialog() },
             onListSelected = { list -> viewModel.addGameToCustomList(list) },
-            onCreateList = { name, isPublic -> viewModel.onCreateList(name, isPublic) }
+            onCreateList = { name, desc, public -> viewModel.onCreateList(name, desc, public) }
         )
     }
 
@@ -764,9 +764,10 @@ fun AddToListDialog(
     lists: List<CustomGameList>,
     onDismiss: () -> Unit,
     onListSelected: (CustomGameList) -> Unit,
-    onCreateList: (String, Boolean) -> Unit
+    onCreateList: (String, String, Boolean) -> Unit
 ) {
     var newListName by remember { mutableStateOf("") }
+    var newListDesc by remember { mutableStateOf("") }
     var isCreating by remember { mutableStateOf(false) }
     var isPublic by remember { mutableStateOf(false) }
 
@@ -825,6 +826,16 @@ fun AddToListDialog(
                         singleLine = true
                     )
 
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    OutlinedTextField(
+                        value = newListDesc,
+                        onValueChange = { newListDesc = it },
+                        label = { Text("Descripción (Opcional)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 3
+                    )
+
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier
@@ -837,7 +848,7 @@ fun AddToListDialog(
                             onCheckedChange = { isPublic = it },
                             colors = CheckboxDefaults.colors(checkedColor = Color(0xFFE52128))
                         )
-                        Text(text = "Hacer pública esta lista", color = Color.Black)
+                        Text(text = "Lista Pública", color = Color.Black)
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -846,8 +857,11 @@ fun AddToListDialog(
                         TextButton(onClick = { isCreating = false }) { Text("Cancelar", color = Color.Gray) }
                         Button(
                             onClick = {
-                                onCreateList(newListName, isPublic)
+                                // ✅ PASAMOS LOS 3 PARÁMETROS
+                                onCreateList(newListName, newListDesc, isPublic)
+                                // Reset
                                 newListName = ""
+                                newListDesc = ""
                                 isPublic = false
                                 isCreating = false
                             },

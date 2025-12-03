@@ -1,5 +1,6 @@
 package com.ucb.proyectofinalgamerteca.features.user_library.data.repository
 
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
@@ -185,23 +186,45 @@ class UserLibraryRepository(
         } catch (e: Exception) { Result.failure(e) }
     }
 
-    override suspend fun getAllPublicLists(): Result<List<CustomGameList>> {
+    override suspend fun getAllPublicLists(lastVisible: Any?, limit: Int): Result<Pair<List<CustomGameList>, Any?>> {
         return try {
-            val snapshot = db.collectionGroup("lists")
-                .whereEqualTo("isPublic", true)
+            var query = db.collectionGroup("lists")
+                .whereEqualTo("public", true)
                 .orderBy("createdAt", Query.Direction.DESCENDING)
-                .get().await()
+                .limit(limit.toLong())
 
+            // Si hay un punto de partida, empezamos después de él
+            if (lastVisible != null && lastVisible is DocumentSnapshot) {
+                query = query.startAfter(lastVisible)
+            }
+
+            val snapshot = query.get().await()
             val lists = snapshot.toObjects(CustomGameList::class.java)
-            Result.success(lists)
-        } catch (e: Exception) { Result.failure(e) }
+
+            // Obtenemos el último documento para la próxima página
+            val lastDoc = snapshot.documents.lastOrNull()
+
+            Result.success(Pair(lists, lastDoc))
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
-    override suspend fun getUserLists(userId: String): Result<List<CustomGameList>> {
+    override suspend fun getUserLists(userId: String, lastVisible: Any?, limit: Int): Result<Pair<List<CustomGameList>, Any?>> {
         return try {
-            val snapshot = getUserRef(userId).collection("lists").get().await()
+            var query = getUserRef(userId).collection("lists")
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .limit(limit.toLong())
+
+            if (lastVisible != null && lastVisible is DocumentSnapshot) {
+                query = query.startAfter(lastVisible)
+            }
+
+            val snapshot = query.get().await()
             val lists = snapshot.toObjects(CustomGameList::class.java)
-            Result.success(lists)
+            val lastDoc = snapshot.documents.lastOrNull()
+
+            Result.success(Pair(lists, lastDoc))
         } catch (e: Exception) {
             Result.failure(e)
         }
@@ -215,6 +238,20 @@ class UserLibraryRepository(
                 .set(mapOf("customLists" to FieldValue.arrayUnion(listId)), SetOptions.merge()).await()
 
             Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun getListById(listId: String): Result<CustomGameList?> {
+        return try {
+            val snapshot = db.collectionGroup("lists")
+                .whereEqualTo("listId", listId)
+                .limit(1)
+                .get().await()
+
+            val list = snapshot.documents.firstOrNull()?.toObject(CustomGameList::class.java)
+            Result.success(list)
         } catch (e: Exception) {
             Result.failure(e)
         }

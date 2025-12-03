@@ -7,17 +7,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -25,6 +29,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ucb.proyectofinalgamerteca.features.user_library.domain.model.CustomGameList
@@ -38,88 +43,140 @@ fun GameListCard(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .height(100.dp)
+            .height(160.dp)
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        shape = RoundedCornerShape(12.dp)
     ) {
         Row(modifier = Modifier.fillMaxSize()) {
-
-            // --- SECCIÓN IZQUIERDA: PORTADAS---
             Box(
                 modifier = Modifier
-                    .width(100.dp)
+                    .width(150.dp)
                     .fillMaxHeight()
+                    .background(Color(0xFFF0F0F0))
+                    .padding(12.dp),
+                contentAlignment = Alignment.CenterStart
             ) {
                 if (coverUrls.isEmpty()) {
-                    Box(modifier = Modifier.fillMaxSize().background(Color.LightGray))
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.LightGray, RoundedCornerShape(8.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text("Vacía", style = MaterialTheme.typography.bodySmall, color = Color.DarkGray)
+                    }
                 } else {
-                    Row(modifier = Modifier.fillMaxSize()) {
-                        // Imagen 1
-                        if (coverUrls.isNotEmpty()) {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current).data(coverUrls[0]).crossfade(true).build(),
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier.weight(1f).fillMaxHeight().padding(end = 1.dp)
-                            )
-                        }
-                        // Columna para Imagen 2 y 3
-                        if (coverUrls.size > 1) {
-                            Column(modifier = Modifier.weight(1f).fillMaxHeight()) {
-                                AsyncImage(
-                                    model = ImageRequest.Builder(LocalContext.current).data(coverUrls[1]).crossfade(true).build(),
-                                    contentDescription = null,
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier.weight(1f).fillMaxWidth().padding(bottom = 1.dp)
-                                )
-                                if (coverUrls.size > 2) {
-                                    AsyncImage(
-                                        model = ImageRequest.Builder(LocalContext.current).data(coverUrls[2]).crossfade(true).build(),
-                                        contentDescription = null,
-                                        contentScale = ContentScale.Crop,
-                                        modifier = Modifier.weight(1f).fillMaxWidth()
-                                    )
-                                } else {
-                                    Box(modifier = Modifier.weight(1f).background(Color.Black)) // Relleno
-                                }
-                            }
-                        }
+                    // Renderizamos de atrás hacia adelante
+
+                    // Imagen 3 (Fondo - Derecha)
+                    if (coverUrls.size > 2) {
+                        CollageImage(
+                            url = coverUrls[2],
+                            modifier = Modifier
+                                .fillMaxHeight(0.85f)
+                                .aspectRatio(0.7f)
+                                .offset(x = 60.dp)
+                                .zIndex(1f)
+                        )
+                    }
+
+                    // Imagen 2 (Medio)
+                    if (coverUrls.size > 1) {
+                        CollageImage(
+                            url = coverUrls[1],
+                            modifier = Modifier
+                                .fillMaxHeight(0.92f)
+                                .aspectRatio(0.7f)
+                                .offset(x = 30.dp)
+                                .zIndex(2f)
+                        )
+                    }
+
+                    // Imagen 1 (Frente - Izquierda)
+                    if (coverUrls.isNotEmpty()) {
+                        CollageImage(
+                            url = coverUrls[0],
+                            modifier = Modifier
+                                .fillMaxHeight(1f)
+                                .aspectRatio(0.7f)
+                                .zIndex(3f)
+                        )
                     }
                 }
             }
 
-            // --- SECCIÓN DERECHA: INFO ---
+            // --- SECCIÓN DERECHA: INFORMACIÓN ---
             Column(
                 modifier = Modifier
                     .weight(1f)
-                    .padding(12.dp)
+                    .padding(16.dp)
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
                     text = list.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    color = Color.Black
                 )
 
+                // Descripción
+                if (list.description.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = list.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = Color.Gray,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
                 Text(
-                    text = "${list.gameIds.size} elementos",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    text = "${list.gameIds.size} juegos",
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Text(
-                    text = if (list.ownerName.isNotBlank()) list.ownerName else "Usuario desconocido",
-                    style = MaterialTheme.typography.bodyMedium,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 1
-                )
+                if (list.ownerName.isNotBlank()) {
+                    Text(
+                        text = "Creado por: ${list.ownerName}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFFE52128),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
             }
         }
+    }
+}
+
+@Composable
+fun CollageImage(url: String, modifier: Modifier) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(8.dp),
+        elevation = CardDefaults.cardElevation(6.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White)
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(url)
+                .crossfade(true)
+                .build(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize()
+        )
     }
 }

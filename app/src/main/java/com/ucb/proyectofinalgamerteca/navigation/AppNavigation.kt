@@ -25,7 +25,9 @@ import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileScree
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScreen
 import com.ucb.proyectofinalgamerteca.features.settings.presentation.SettingsScreen
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupScreen
+import com.ucb.proyectofinalgamerteca.features.user_library.presentation.ListDetailScreen
 import com.ucb.proyectofinalgamerteca.features.user_library.presentation.UserGamesScreen
+import com.ucb.proyectofinalgamerteca.features.user_library.presentation.UserListsScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -122,8 +124,30 @@ fun AppNavigation(startDestination: String) {
             composable("lists") {
                 PublicListsScreen(
                     onListClick = { listId ->
-                        // Navegar a una pantalla de detalle de lista (tendrías que crearla)
-                        // navController.navigate("list_detail/$listId")
+                        navController.navigate(Screen.ListDetail.createRoute(listId))
+                    }
+                )
+            }
+
+            composable(Screen.UserLists.route) {
+                UserListsScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onListClick = { listId ->
+                        navController.navigate(Screen.ListDetail.createRoute(listId))
+                    }
+                )
+            }
+
+            composable(
+                route = Screen.ListDetail.route,
+                arguments = listOf(navArgument("listId") { type = NavType.StringType })
+            ) { backStackEntry ->
+                val listId = backStackEntry.arguments?.getString("listId") ?: return@composable
+                ListDetailScreen(
+                    listId = listId,
+                    onBackClick = { navController.popBackStack() },
+                    onGameClick = { gameId ->
+                        navController.navigate(Screen.GameDetail.createRoute(gameId))
                     }
                 )
             }
@@ -135,7 +159,11 @@ fun AppNavigation(startDestination: String) {
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     onNavigateToUserLibrary = { filter ->
-                        navController.navigate(Screen.UserGames.createRoute(filter))
+                        if (filter == "lists") {
+                            navController.navigate(Screen.UserLists.route)
+                        } else {
+                            navController.navigate(Screen.UserGames.createRoute(filter))
+                        }
                     },
                 )
             }

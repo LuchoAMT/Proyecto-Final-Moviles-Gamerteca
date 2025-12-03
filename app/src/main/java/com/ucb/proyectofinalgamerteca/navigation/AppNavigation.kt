@@ -4,7 +4,6 @@ import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -19,6 +18,7 @@ import com.ucb.proyectofinalgamerteca.features.games.presentation.GameDetailScre
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GenreGamesScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.PlatformGamesScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.PublicListsScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.ReleaseYearGamesScreen
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginScreen
 import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileScreen
@@ -120,7 +120,12 @@ fun AppNavigation(startDestination: String) {
             }
 
             composable("lists") {
-                Text("Pantalla de listas")
+                PublicListsScreen(
+                    onListClick = { listId ->
+                        // Navegar a una pantalla de detalle de lista (tendrías que crearla)
+                        // navController.navigate("list_detail/$listId")
+                    }
+                )
             }
 
             composable(Screen.Profile.route) {

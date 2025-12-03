@@ -61,6 +61,7 @@ interface IUserLibraryRepository {
     // =============================================================================================
 
     suspend fun createCustomList(userId: String, list: CustomGameList): Result<String>
+    suspend fun getAllPublicLists(): Result<List<CustomGameList>>
     suspend fun updateCustomList(userId: String, listId: String, list: CustomGameList): Result<Unit>
     suspend fun deleteCustomList(userId: String, listId: String): Result<Unit>
     suspend fun getUserLists(userId: String): Result<List<CustomGameList>>

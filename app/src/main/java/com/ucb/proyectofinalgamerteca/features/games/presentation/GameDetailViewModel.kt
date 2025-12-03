@@ -5,10 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.ucb.proyectofinalgamerteca.features.auth.data.repository.FirebaseRepository
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
 import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.GetGameDetailsUseCase
-import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.GetPopularGamesUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.model.CustomGameList
 import com.ucb.proyectofinalgamerteca.features.user_library.domain.model.GameStatus
 import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.AddGameToLibraryUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.AddGameToListUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.CreateCustomListUseCase
 import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.GetUserGameInteractionUseCase
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.GetUserListsUseCase
 import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.SetUserRatingUseCase
 import com.ucb.proyectofinalgamerteca.features.user_library.domain.usecase.ToggleFavoriteUseCase
 import kotlinx.coroutines.Dispatchers
@@ -19,11 +22,13 @@ import kotlinx.coroutines.launch
 
 class GameDetailViewModel(
     private val getGameDetails: GetGameDetailsUseCase,
-    private val getPopularGames: GetPopularGamesUseCase,
     private val addGameToLibrary: AddGameToLibraryUseCase,
     private val getUserInteraction: GetUserGameInteractionUseCase,
     private val toggleFavorite: ToggleFavoriteUseCase,
     private val setUserRating: SetUserRatingUseCase,
+    private val getUserLists: GetUserListsUseCase,
+    private val createCustomList: CreateCustomListUseCase,
+    private val addGameToList: AddGameToListUseCase,
     private val repo: FirebaseRepository
 ) : ViewModel() {
 
@@ -49,6 +54,13 @@ class GameDetailViewModel(
 
     private val _relatedGames = MutableStateFlow<List<GameModel>>(emptyList())
     val relatedGames: StateFlow<List<GameModel>> = _relatedGames.asStateFlow()
+
+    // --- ESTADO PARA LISTAS PERSONALIZADAS ---
+    private val _userLists = MutableStateFlow<List<CustomGameList>>(emptyList())
+    val userLists: StateFlow<List<CustomGameList>> = _userLists.asStateFlow()
+
+    private val _showListDialog = MutableStateFlow(false)
+    val showListDialog: StateFlow<Boolean> = _showListDialog.asStateFlow()
 
     private var currentGame: GameModel? = null
 
@@ -134,6 +146,55 @@ class GameDetailViewModel(
                 }
             }
             _relatedGames.value = games
+        }
+    }
+
+    // --- FUNCIONES DE LISTAS ---
+
+    fun openListDialog() {
+        val uid = repo.getCurrentUserId() ?: return
+        _showListDialog.value = true
+        // Cargamos las listas al abrir el diálogo
+        viewModelScope.launch(Dispatchers.IO) {
+            getUserLists(uid).onSuccess { lists ->
+                _userLists.value = lists
+            }
+        }
+    }
+
+    fun closeListDialog() {
+        _showListDialog.value = false
+    }
+
+    fun onCreateList(listName: String, isPublic: Boolean) {
+        val uid = repo.getCurrentUserId() ?: return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val userProfile = repo.getUserProfile(uid).getOrNull()
+            val userName = userProfile?.get("username") as? String ?: "Anónimo"
+
+            val newList = CustomGameList(
+                name = listName,
+                isPublic = isPublic,
+                ownerName = userName
+            )
+            createCustomList(uid, newList).onSuccess {
+                getUserLists(uid).onSuccess { lists ->
+                    _userLists.value = lists
+                }
+            }
+        }
+    }
+
+    fun addGameToCustomList(list: CustomGameList) {
+        val game = currentGame ?: return
+        val uid = repo.getCurrentUserId() ?: return
+
+        viewModelScope.launch(Dispatchers.IO) {
+            addGameToList(uid, list.listId, game.id).onSuccess {
+                // Opcional: Mostrar mensaje de éxito o cerrar diálogo
+                _showListDialog.value = false
+            }
         }
     }
 }

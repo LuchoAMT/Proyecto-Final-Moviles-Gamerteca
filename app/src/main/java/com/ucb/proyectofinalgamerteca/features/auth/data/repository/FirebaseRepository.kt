@@ -25,28 +25,13 @@ class FirebaseRepository(
             db.collection("users").document(userId).set(userData).await()
 
             // 4. Crear subcolección statuses con listas vacías
-            val statusesRef = db.collection("users")
-                .document(userId)
-                .collection("statuses")
-
+            val statusesRef = db.collection("users").document(userId).collection("statuses")
             val emptyList = mapOf("games" to emptyList<Int>())
 
             statusesRef.document("played").set(emptyList).await()
             statusesRef.document("playing").set(emptyList).await()
             statusesRef.document("wishlist").set(emptyList).await()
             statusesRef.document("library").set(emptyList).await()
-
-            // 5. Crear subcolección lists con lista "favorites"
-            val listsRef = db.collection("users")
-                .document(userId)
-                .collection("lists")
-
-            val favoritesList = mapOf(
-                "name" to "Favoritos",
-                "games" to emptyList<Int>()
-            )
-
-            listsRef.document("favorites").set(favoritesList).await()
 
             Result.success(Unit)
         } catch (e: Exception) {

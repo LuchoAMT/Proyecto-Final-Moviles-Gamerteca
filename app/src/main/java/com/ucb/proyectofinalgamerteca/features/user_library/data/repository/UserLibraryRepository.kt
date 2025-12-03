@@ -19,15 +19,15 @@ class UserLibraryRepository(
 
     private fun getUserRef(userId: String) = db.collection("users").document(userId)
 
-    // --- HELPER ---
     private fun mapDocumentToUserGame(doc: com.google.firebase.firestore.DocumentSnapshot): UserGame {
-        val dto = doc.toObject(UserGameDto::class.java)!!
+        // Si el documento existe pero está vacío o corrupto, manejamos el error
+        val dto = doc.toObject(UserGameDto::class.java) ?: UserGameDto()
         val id = doc.id.toLongOrNull() ?: 0L
         return dto.toModel(id)
     }
 
     // =============================================================================================
-    // 1. BIBLIOTECA
+    // 1. GESTIÓN DE BIBLIOTECA
     // =============================================================================================
 
     override suspend fun addGameToLibrary(userId: String, game: GameModel, status: GameStatus?): Result<Unit> {
@@ -92,6 +92,10 @@ class UserLibraryRepository(
         }
     }
 
+    // =============================================================================================
+    // 2. FILTROS ESPECIALES (Settings)
+    // =============================================================================================
+
     override suspend fun getGamesWithAnyStatus(userId: String): Result<List<UserGame>> {
         return try {
             val snapshot = getUserRef(userId).collection("library")
@@ -108,8 +112,22 @@ class UserLibraryRepository(
         }
     }
 
+    override suspend fun getRatedGames(userId: String): Result<List<UserGame>> {
+        return try {
+            val snapshot = getUserRef(userId).collection("library")
+                .whereGreaterThan("userRating", 0)
+                .orderBy("userRating", Query.Direction.DESCENDING)
+                .get().await()
+
+            val games = snapshot.documents.map { mapDocumentToUserGame(it) }
+            Result.success(games)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // =============================================================================================
-    // 2. FAVORITOS Y RATING
+    // 3. FAVORITOS Y RATING
     // =============================================================================================
 
     override suspend fun toggleFavorite(userId: String, gameId: Long, isFavorite: Boolean): Result<Unit> {
@@ -152,33 +170,31 @@ class UserLibraryRepository(
         }
     }
 
-    override suspend fun getRatedGames(userId: String): Result<List<UserGame>> {
-        return try {
-            val snapshot = getUserRef(userId).collection("library")
-                .whereGreaterThan("userRating", 0)
-                .orderBy("userRating", Query.Direction.DESCENDING)
-                .get().await()
-            val games = snapshot.documents.map { mapDocumentToUserGame(it) }
-            Result.success(games)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-
     // =============================================================================================
-    // 3. LISTAS PERSONALIZADAS
+    // 4. LISTAS PERSONALIZADAS
     // =============================================================================================
 
     override suspend fun createCustomList(userId: String, list: CustomGameList): Result<String> {
         return try {
             val listsRef = getUserRef(userId).collection("lists")
             val newDoc = listsRef.document()
-            val listToSave = list.copy(listId = newDoc.id)
+            val listToSave = list.copy(listId = newDoc.id, ownerId = userId)
+
             newDoc.set(listToSave).await()
             Result.success(newDoc.id)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        } catch (e: Exception) { Result.failure(e) }
+    }
+
+    override suspend fun getAllPublicLists(): Result<List<CustomGameList>> {
+        return try {
+            val snapshot = db.collectionGroup("lists")
+                .whereEqualTo("isPublic", true)
+                .orderBy("createdAt", Query.Direction.DESCENDING)
+                .get().await()
+
+            val lists = snapshot.toObjects(CustomGameList::class.java)
+            Result.success(lists)
+        } catch (e: Exception) { Result.failure(e) }
     }
 
     override suspend fun getUserLists(userId: String): Result<List<CustomGameList>> {
@@ -193,11 +209,8 @@ class UserLibraryRepository(
 
     override suspend fun addGameToList(userId: String, listId: String, gameId: Long): Result<Unit> {
         return try {
-            // Añadir ID a la lista
             getUserRef(userId).collection("lists").document(listId)
                 .update("gameIds", FieldValue.arrayUnion(gameId)).await()
-
-            // Añadir ID de lista al juego
             getUserRef(userId).collection("library").document(gameId.toString())
                 .set(mapOf("customLists" to FieldValue.arrayUnion(listId)), SetOptions.merge()).await()
 
@@ -207,8 +220,34 @@ class UserLibraryRepository(
         }
     }
 
+    override suspend fun removeGameFromList(userId: String, listId: String, gameId: Long): Result<Unit> {
+        return try {
+            // 1. Quitar ID del juego de la lista
+            getUserRef(userId).collection("lists").document(listId)
+                .update("gameIds", FieldValue.arrayRemove(gameId)).await()
+
+            // 2. Quitar ID de la lista del juego
+            getUserRef(userId).collection("library").document(gameId.toString())
+                .update("customLists", FieldValue.arrayRemove(listId)).await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteCustomList(userId: String, listId: String): Result<Unit> {
+        return try {
+            getUserRef(userId).collection("lists").document(listId).delete().await()
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     // =============================================================================================
-    // 4. MÉTODOS RESTANTES (Implementación Básica)
+    // 5. STUBS
     // =============================================================================================
 
     override suspend fun removeGameFromLibrary(userId: String, gameId: Long): Result<Unit> {
@@ -218,13 +257,13 @@ class UserLibraryRepository(
         } catch (e: Exception) { Result.failure(e) }
     }
 
-    // Reseñas y Listas (Stubs funcionales)
+    // Reviews
     override suspend fun addReview(userId: String, review: GameReview): Result<String> = Result.success("")
     override suspend fun updateReview(userId: String, reviewId: String, review: GameReview): Result<Unit> = Result.success(Unit)
     override suspend fun deleteReview(userId: String, reviewId: String): Result<Unit> = Result.success(Unit)
     override suspend fun getUserReviews(userId: String): Result<List<GameReview>> = Result.success(emptyList())
     override suspend fun getGameReview(userId: String, gameId: Long): Result<GameReview?> = Result.success(null)
+
+    // Updates
     override suspend fun updateCustomList(userId: String, listId: String, list: CustomGameList): Result<Unit> = Result.success(Unit)
-    override suspend fun deleteCustomList(userId: String, listId: String): Result<Unit> = Result.success(Unit)
-    override suspend fun removeGameFromList(userId: String, listId: String, gameId: Long): Result<Unit> = Result.success(Unit)
 }

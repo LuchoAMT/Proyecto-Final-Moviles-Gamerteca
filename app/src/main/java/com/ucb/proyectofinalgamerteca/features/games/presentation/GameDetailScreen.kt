@@ -11,28 +11,37 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CardGiftcard
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Computer
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Gamepad
 import androidx.compose.material.icons.filled.LibraryBooks
+import androidx.compose.material.icons.filled.List
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,13 +49,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
@@ -60,10 +74,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ucb.proyectofinalgamerteca.R
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
+import com.ucb.proyectofinalgamerteca.features.user_library.domain.model.CustomGameList
 import com.ucb.proyectofinalgamerteca.features.user_library.domain.model.GameStatus
 import org.koin.androidx.compose.koinViewModel
 import java.util.Calendar
@@ -183,6 +199,17 @@ fun GameDetailContent(
 ) {
     val scrollState = rememberScrollState()
     val userState by viewModel.userState.collectAsState()
+    val userLists by viewModel.userLists.collectAsState()
+    val showDialog by viewModel.showListDialog.collectAsState()
+
+    if (showDialog) {
+        AddToListDialog(
+            lists = userLists,
+            onDismiss = { viewModel.closeListDialog() },
+            onListSelected = { list -> viewModel.addGameToCustomList(list) },
+            onCreateList = { name, isPublic -> viewModel.onCreateList(name, isPublic) }
+        )
+    }
 
     Column(
         modifier = modifier
@@ -364,6 +391,20 @@ fun GameDetailContent(
                     )
                 }
             }
+        }
+
+        Button(
+            onClick = { viewModel.openListDialog() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(bottom = 16.dp)
+                .height(50.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF333333)), // Gris oscuro elegante
+            shape = MaterialTheme.shapes.medium
+        ) {
+            Icon(Icons.Default.List, contentDescription = null, tint = Color.White)
+            Spacer(modifier = Modifier.width(8.dp))
+            Text("Añadir a una lista personalizada", color = Color.White, fontWeight = FontWeight.Bold)
         }
 
         // ✅ Resumen
@@ -713,6 +754,118 @@ fun RelatedGameCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun AddToListDialog(
+    lists: List<CustomGameList>,
+    onDismiss: () -> Unit,
+    onListSelected: (CustomGameList) -> Unit,
+    onCreateList: (String, Boolean) -> Unit
+) {
+    var newListName by remember { mutableStateOf("") }
+    var isCreating by remember { mutableStateOf(false) }
+    var isPublic by remember { mutableStateOf(false) }
+
+    Dialog(onDismissRequest = onDismiss) {
+        Card(
+            shape = MaterialTheme.shapes.medium,
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            modifier = Modifier.fillMaxWidth().padding(16.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+                Text(
+                    text = "Añadir a una lista",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // Lista de listas existentes
+                if (!isCreating) {
+                    LazyColumn(
+                        modifier = Modifier.heightIn(max = 200.dp)
+                    ) {
+                        items(lists) { list ->
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .clickable { onListSelected(list) }
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(Icons.Default.Check, contentDescription = null, tint = Color.Gray, modifier = Modifier.size(20.dp))
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
+                                    Text(text = list.name, style = MaterialTheme.typography.bodyLarge, color = Color.Black)
+                                    if(list.isPublic) {
+                                        Text(text = "Pública", style = MaterialTheme.typography.labelSmall, color = Color(0xFFE52128))
+                                    }
+                                }
+                            }
+                            Divider(color = Color.LightGray.copy(alpha = 0.5f))
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // NUEVA LISTA
+                if (isCreating) {
+                    OutlinedTextField(
+                        value = newListName,
+                        onValueChange = { newListName = it },
+                        label = { Text("Nombre de la lista") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true
+                    )
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp)
+                            .clickable { isPublic = !isPublic }
+                    ) {
+                        Checkbox(
+                            checked = isPublic,
+                            onCheckedChange = { isPublic = it },
+                            colors = CheckboxDefaults.colors(checkedColor = Color(0xFFE52128))
+                        )
+                        Text(text = "Hacer pública esta lista", color = Color.Black)
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(horizontalArrangement = Arrangement.End, modifier = Modifier.fillMaxWidth()) {
+                        TextButton(onClick = { isCreating = false }) { Text("Cancelar", color = Color.Gray) }
+                        Button(
+                            onClick = {
+                                onCreateList(newListName, isPublic)
+                                newListName = ""
+                                isPublic = false
+                                isCreating = false
+                            },
+                            enabled = newListName.isNotBlank(),
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE52128))
+                        ) { Text("Crear") }
+                    }
+                } else {
+                    Button(
+                        onClick = { isCreating = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFE52128))
+                    ) {
+                        Icon(Icons.Default.Add, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Crear nueva lista")
+                    }
+                }
             }
         }
     }

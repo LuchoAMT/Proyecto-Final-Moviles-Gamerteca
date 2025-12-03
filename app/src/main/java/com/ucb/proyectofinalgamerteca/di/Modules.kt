@@ -16,6 +16,7 @@ import com.ucb.proyectofinalgamerteca.features.games.presentation.GameDetailView
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListViewModel
 import com.ucb.proyectofinalgamerteca.features.games.presentation.GenreGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.games.presentation.PlatformGamesViewModel
+import com.ucb.proyectofinalgamerteca.features.games.presentation.PublicListsViewModel
 import com.ucb.proyectofinalgamerteca.features.games.presentation.ReleaseYearGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.login.domain.usecase.LoginUseCase
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginViewModel
@@ -108,17 +109,17 @@ val appModule = module {
     // 4. REPOSITORIOS
     // =============================================================================================
 
-    // Repositorio de Juegos (API + Room)
+    // Repositorio de Juegos
     single<IGamesRepository> {
         GamesRepository(remote = get(), local = get())
     }
 
-    // Repositorio de Librería de Usuario (Firebase Firestore)
+    // Repositorio de Librería de Usuario
     single<IUserLibraryRepository> {
         UserLibraryRepository(db = get())
     }
 
-    // Repositorio de Autenticación y Usuario
+    // Repositorio de Autenticación
     single {
         FirebaseRepository(auth = get(), db = get())
     }
@@ -160,18 +161,34 @@ val appModule = module {
     // --- Listas y Biblioteca ---
     viewModel { GamesListViewModel(getPopularGames = get()) }
 
-    // Lista de juegos del usuario (Favoritos, jugados, etc.)
-    viewModel { UserGamesViewModel(libraryRepository = get(), authRepo = get(), gamesRepository = get()) }
+    // Lista de juegos del usuario (Mis Juegos, Favoritos, etc.)
+    viewModel {
+        UserGamesViewModel(
+            libraryRepository = get(),
+            authRepo = get(),
+            gamesRepository = get()
+        )
+    }
 
-    // Detalle del Juego
+    // Listas Públicas (Tab "Listas")
+    viewModel {
+        PublicListsViewModel(
+            libraryRepo = get(),
+            gamesRepo = get()
+        )
+    }
+
+    // Detalle del Juego (¡Completo!)
     viewModel {
         GameDetailViewModel(
             getGameDetails = get(),
-            getPopularGames = get(),
             addGameToLibrary = get(),
             getUserInteraction = get(),
             toggleFavorite = get(),
             setUserRating = get(),
+            getUserLists = get(),
+            createCustomList = get(),
+            addGameToList = get(),
             repo = get()
         )
     }

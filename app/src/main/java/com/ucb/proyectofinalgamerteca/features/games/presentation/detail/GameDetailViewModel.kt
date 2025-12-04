@@ -1,4 +1,4 @@
-package com.ucb.proyectofinalgamerteca.features.games.presentation
+package com.ucb.proyectofinalgamerteca.features.games.presentation.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

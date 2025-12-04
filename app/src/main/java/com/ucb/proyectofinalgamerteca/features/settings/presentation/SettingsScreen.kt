@@ -16,8 +16,11 @@ import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material.icons.filled.DarkMode
@@ -55,10 +58,12 @@ fun SettingsScreen(
     onNavigateToProfile: () -> Unit = {},
     onNavigateToUserLibrary: (String) -> Unit = {},
     onNavigateToLanguage: () -> Unit = {},
-    onToggleDarkMode: (Boolean) -> Unit = {}
+    onToggleDarkMode: (Boolean) -> Unit = {},
+    onLogout: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     var isDarkMode by remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
 
     val systemUiController = rememberSystemUiController()
 
@@ -81,6 +86,7 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(paddingValues) // Padding inferior del sistema (si hubiera barra de navegación)
                 .background(Color.White)
+                .verticalScroll(scrollState)
         ) {
             // --- CABECERA DE PERFIL ---
             Box(
@@ -203,6 +209,20 @@ fun SettingsScreen(
                         onToggleDarkMode(isDarkMode)
                     }
                 )
+
+                Divider(
+                    color = Color.LightGray.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+                SettingsItem(
+                    icon = Icons.AutoMirrored.Filled.ExitToApp,
+                    title = "Cerrar Sesión",
+                    onClick = {
+                        viewModel.onLogout()
+                        onLogout()
+                    }
+                )
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
     }

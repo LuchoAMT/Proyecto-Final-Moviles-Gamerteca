@@ -61,5 +61,9 @@ class FirebaseRepository(
         }
     }
 
+    fun logout() {
+        auth.signOut()
+    }
+
     fun getCurrentUserId(): String? = auth.currentUser?.uid
 }

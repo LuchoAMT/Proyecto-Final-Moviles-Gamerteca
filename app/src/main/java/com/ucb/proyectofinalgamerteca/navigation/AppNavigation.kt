@@ -170,6 +170,12 @@ fun AppNavigation(startDestination: String) {
                         } else {
                             navController.navigate(Screen.UserGames.createRoute(filter))
                         }
+                    },
+                    onLogout = {
+                        navController.navigate(Screen.Login.route){
+                            popUpTo(0) { inclusive = true }
+                            launchSingleTop = true
+                        }
                     }
                 )
             }

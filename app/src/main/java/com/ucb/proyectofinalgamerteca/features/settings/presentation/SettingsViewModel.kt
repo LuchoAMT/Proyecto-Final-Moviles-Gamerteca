@@ -42,4 +42,8 @@ class SettingsViewModel(
             }
         }
     }
+
+    fun onLogout() {
+        repo.logout()
+    }
 }

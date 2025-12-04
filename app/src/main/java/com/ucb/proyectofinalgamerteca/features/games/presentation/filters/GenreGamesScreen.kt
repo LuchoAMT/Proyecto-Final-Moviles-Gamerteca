@@ -1,4 +1,4 @@
-package com.ucb.proyectofinalgamerteca.features.games.presentation
+package com.ucb.proyectofinalgamerteca.features.games.presentation.filters
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,21 +31,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.ucb.proyectofinalgamerteca.features.games.presentation.components.GameCard
 import com.ucb.proyectofinalgamerteca.ui.theme.RedPrimary
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReleaseYearGamesScreen(
+fun GenreGamesScreen(
     modifier: Modifier = Modifier,
-    vm: ReleaseYearGamesViewModel = koinViewModel(),
-    year: Int,
+    vm: GenreGamesViewModel = koinViewModel(),
+    genre: String,
     onGameClick: (Long) -> Unit,
     onBackClick: () -> Unit
 ) {
     val state by vm.state.collectAsState()
-    LaunchedEffect(year) {
-        vm.loadGamesByReleaseYear(year)
+    LaunchedEffect(genre) {
+        vm.loadGamesByGenre(genre)
     }
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -53,7 +54,7 @@ fun ReleaseYearGamesScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "Juegos del año $year",
+                        text = genre,
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = RedPrimary
@@ -83,17 +84,17 @@ fun ReleaseYearGamesScreen(
                 .background(MaterialTheme.colorScheme.background)
         ) {
             when (val currentState = state) {
-                is ReleaseYearGamesViewModel.UiState.Init -> {
+                is GenreGamesViewModel.UiState.Init -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                is ReleaseYearGamesViewModel.UiState.Loading -> {
+                is GenreGamesViewModel.UiState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                is ReleaseYearGamesViewModel.UiState.Error -> {
+                is GenreGamesViewModel.UiState.Error -> {
                     Column(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -110,10 +111,10 @@ fun ReleaseYearGamesScreen(
                         )
                     }
                 }
-                is ReleaseYearGamesViewModel.UiState.Success -> {
+                is GenreGamesViewModel.UiState.Success -> {
                     if (currentState.games.isEmpty()) {
                         Text(
-                            text = "No se encontraron juegos para este año",
+                            text = "No se encontraron juegos para este género",
                             modifier = Modifier.align(Alignment.Center),
                             style = MaterialTheme.typography.bodyLarge
                         )

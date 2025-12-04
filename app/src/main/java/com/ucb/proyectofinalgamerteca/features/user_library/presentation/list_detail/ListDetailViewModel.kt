@@ -1,5 +1,6 @@
-package com.ucb.proyectofinalgamerteca.features.user_library.presentation
+package com.ucb.proyectofinalgamerteca.features.user_library.presentation.list_detail
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
@@ -39,7 +40,7 @@ class ListDetailViewModel(
                     }
                 },
                 onFailure = { exception ->
-                    android.util.Log.e("FIREBASE_ERROR", "Error cargando lista: ${exception.message}", exception)
+                    Log.e("FIREBASE_ERROR", "Error cargando lista: ${exception.message}", exception)
 
                     _uiState.value = UiState(isLoading = false, error = "Error de conexión: ${exception.message}")
                 }

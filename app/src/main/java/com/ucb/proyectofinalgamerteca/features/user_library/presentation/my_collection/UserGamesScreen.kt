@@ -1,4 +1,4 @@
-package com.ucb.proyectofinalgamerteca.features.user_library.presentation
+package com.ucb.proyectofinalgamerteca.features.user_library.presentation.my_collection
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,7 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
-import com.ucb.proyectofinalgamerteca.features.games.presentation.GameCard
+import com.ucb.proyectofinalgamerteca.features.games.presentation.components.GameCard
 import org.koin.androidx.compose.koinViewModel
 
 

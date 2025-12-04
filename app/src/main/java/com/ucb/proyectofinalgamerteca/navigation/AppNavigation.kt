@@ -13,21 +13,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.ucb.proyectofinalgamerteca.features.games.presentation.DeveloperGamesScreen
-import com.ucb.proyectofinalgamerteca.features.games.presentation.GameDetailScreen
-import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListScreen
-import com.ucb.proyectofinalgamerteca.features.games.presentation.GenreGamesScreen
-import com.ucb.proyectofinalgamerteca.features.games.presentation.PlatformGamesScreen
-import com.ucb.proyectofinalgamerteca.features.games.presentation.PublicListsScreen
-import com.ucb.proyectofinalgamerteca.features.games.presentation.ReleaseYearGamesScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.DeveloperGamesScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.detail.GameDetailScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.home.GamesListScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.GenreGamesScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.PlatformGamesScreen
+import com.ucb.proyectofinalgamerteca.features.user_library.presentation.lists_public.PublicListsScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.ReleaseYearGamesScreen
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginScreen
 import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileScreen
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScreen
 import com.ucb.proyectofinalgamerteca.features.settings.presentation.SettingsScreen
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupScreen
-import com.ucb.proyectofinalgamerteca.features.user_library.presentation.ListDetailScreen
-import com.ucb.proyectofinalgamerteca.features.user_library.presentation.UserGamesScreen
-import com.ucb.proyectofinalgamerteca.features.user_library.presentation.UserListsScreen
+import com.ucb.proyectofinalgamerteca.features.user_library.presentation.list_detail.ListDetailScreen
+import com.ucb.proyectofinalgamerteca.features.user_library.presentation.my_collection.UserGamesScreen
+import com.ucb.proyectofinalgamerteca.features.user_library.presentation.lists_manager.UserListsScreen
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

@@ -1,4 +1,4 @@
-package com.ucb.proyectofinalgamerteca.features.games.presentation
+package com.ucb.proyectofinalgamerteca.features.games.presentation.filters
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlin.coroutines.cancellation.CancellationException
 
-class GenreGamesViewModel(
+class DeveloperGamesViewModel(
     private val repository: IGamesRepository
 ) : ViewModel() {
     private val _uiState = MutableStateFlow<UiState>(UiState.Init)
@@ -23,16 +23,16 @@ class GenreGamesViewModel(
         data class Error(val message: String) : UiState()
     }
 
-    fun loadGamesByGenre(genre: String, limit: Int = 50) {
+    fun loadGamesByDeveloper(developer: String, limit: Int = 50) {
         viewModelScope.launch {
             _uiState.value = UiState.Loading
             try {
-                val games = repository.getGamesByGenre(genre, limit)
+                val games = repository.getGamesByDeveloper(developer, limit)
                 _uiState.value = UiState.Success(games)
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                Log.e("GenreGamesViewModel", "Error al cargar juegos por género", e)
+                Log.e("DeveloperGamesViewModel", "Error al cargar juegos por desarrollador", e)
                 _uiState.value = UiState.Error(e.message ?: "Error al cargar")
             }
         }

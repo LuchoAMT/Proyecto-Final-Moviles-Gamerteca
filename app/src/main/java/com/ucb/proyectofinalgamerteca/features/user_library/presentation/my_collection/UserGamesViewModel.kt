@@ -1,4 +1,4 @@
-package com.ucb.proyectofinalgamerteca.features.user_library.presentation
+package com.ucb.proyectofinalgamerteca.features.user_library.presentation.my_collection
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

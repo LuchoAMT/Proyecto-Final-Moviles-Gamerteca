@@ -1,4 +1,4 @@
-package com.ucb.proyectofinalgamerteca.features.games.presentation
+package com.ucb.proyectofinalgamerteca.features.games.presentation.home
 
 import android.util.Log
 import androidx.lifecycle.ViewModel

@@ -1,4 +1,4 @@
-package com.ucb.proyectofinalgamerteca.features.user_library.presentation
+package com.ucb.proyectofinalgamerteca.features.user_library.presentation.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

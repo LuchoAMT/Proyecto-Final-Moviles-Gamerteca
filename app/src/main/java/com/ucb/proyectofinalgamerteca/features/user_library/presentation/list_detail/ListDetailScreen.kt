@@ -1,4 +1,4 @@
-package com.ucb.proyectofinalgamerteca.features.user_library.presentation
+package com.ucb.proyectofinalgamerteca.features.user_library.presentation.list_detail
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -37,7 +37,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.ucb.proyectofinalgamerteca.features.games.presentation.GameCard
+import com.ucb.proyectofinalgamerteca.features.games.presentation.components.GameCard
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

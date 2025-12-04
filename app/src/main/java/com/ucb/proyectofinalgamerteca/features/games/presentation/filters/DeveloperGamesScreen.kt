@@ -1,4 +1,4 @@
-package com.ucb.proyectofinalgamerteca.features.games.presentation
+package com.ucb.proyectofinalgamerteca.features.games.presentation.filters
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -31,21 +31,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.ucb.proyectofinalgamerteca.features.games.presentation.components.GameCard
 import com.ucb.proyectofinalgamerteca.ui.theme.RedPrimary
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GenreGamesScreen(
+fun DeveloperGamesScreen(
     modifier: Modifier = Modifier,
-    vm: GenreGamesViewModel = koinViewModel(),
-    genre: String,
+    vm: DeveloperGamesViewModel = koinViewModel(),
+    developer: String,
     onGameClick: (Long) -> Unit,
     onBackClick: () -> Unit
 ) {
     val state by vm.state.collectAsState()
-    LaunchedEffect(genre) {
-        vm.loadGamesByGenre(genre)
+    LaunchedEffect(developer) {
+        vm.loadGamesByDeveloper(developer)
     }
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -53,7 +54,7 @@ fun GenreGamesScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = genre,
+                        text = "Juegos de $developer",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold,
                         color = RedPrimary
@@ -83,17 +84,17 @@ fun GenreGamesScreen(
                 .background(MaterialTheme.colorScheme.background)
         ) {
             when (val currentState = state) {
-                is GenreGamesViewModel.UiState.Init -> {
+                is DeveloperGamesViewModel.UiState.Init -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                is GenreGamesViewModel.UiState.Loading -> {
+                is DeveloperGamesViewModel.UiState.Loading -> {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
-                is GenreGamesViewModel.UiState.Error -> {
+                is DeveloperGamesViewModel.UiState.Error -> {
                     Column(
                         modifier = Modifier.align(Alignment.Center),
                         horizontalAlignment = Alignment.CenterHorizontally
@@ -110,10 +111,10 @@ fun GenreGamesScreen(
                         )
                     }
                 }
-                is GenreGamesViewModel.UiState.Success -> {
+                is DeveloperGamesViewModel.UiState.Success -> {
                     if (currentState.games.isEmpty()) {
                         Text(
-                            text = "No se encontraron juegos para este género",
+                            text = "No se encontraron juegos para este desarrollador",
                             modifier = Modifier.align(Alignment.Center),
                             style = MaterialTheme.typography.bodyLarge
                         )

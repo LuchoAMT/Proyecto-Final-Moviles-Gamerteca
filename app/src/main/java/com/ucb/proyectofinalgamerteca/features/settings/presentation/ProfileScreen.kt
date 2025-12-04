@@ -1,6 +1,5 @@
-package com.ucb.proyectofinalgamerteca.features.profile.presentation
+package com.ucb.proyectofinalgamerteca.features.settings.presentation
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -14,12 +13,15 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -35,12 +37,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.ucb.proyectofinalgamerteca.R
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,15 +59,13 @@ fun ProfileScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Editar Perfil", color = Color.White) },
+                title = { Text("Editar Perfil", color = Color.White, fontWeight = FontWeight.Bold) },
                 navigationIcon = {
                     IconButton(onClick = onBackClick) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Volver", tint = Color.White)
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = Color(0xFFE74C3C)
-                )
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color(0xFFE52128))
             )
         }
     ) { innerPadding ->
@@ -79,50 +76,57 @@ fun ProfileScreen(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Imagen del perfil
+            // --- FOTO DE PERFIL (ICONO) ---
             Box(
                 modifier = Modifier
                     .size(120.dp)
                     .clip(CircleShape)
-                    .background(Color.LightGray)
-                    .clickable(enabled = isEditing) {
-                        // Acción para cambiar imagen
-                    },
+                    .background(Color(0xFFE0E0E0)) // Fondo gris claro
+                    .clickable(enabled = isEditing) { /* Lógica futura de cambio */ },
                 contentAlignment = Alignment.Center
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.v1_default_profile),
+                // ✅ CAMBIO: Usamos Icon en vez de Image
+                Icon(
+                    imageVector = Icons.Default.Person,
                     contentDescription = "Imagen de perfil",
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.clip(CircleShape)
+                    tint = Color.Gray, // Color del muñeco
+                    modifier = Modifier.size(80.dp)
                 )
             }
 
-            TextButton(
-                onClick = { /* Acción para cambiar imagen */ },
-                enabled = isEditing
-            ) {
-                Text("Cambiar Imagen")
+            if (isEditing) {
+                TextButton(onClick = { /* Acción futura */ }) {
+                    Text("Cambiar Imagen", color = Color(0xFFE52128))
+                }
+            } else {
+                Spacer(Modifier.height(48.dp))
             }
 
-            Spacer(Modifier.height(16.dp))
+            // --- CAMPOS DE TEXTO ---
 
             OutlinedTextField(
-                value = if (isEditing) username else state.username,
+                value = username,
                 onValueChange = { username = it },
                 label = { Text("Nombre de usuario") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = isEditing
+                enabled = isEditing,
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFE52128),
+                    focusedLabelColor = Color(0xFFE52128),
+                    cursorColor = Color(0xFFE52128)
+                )
             )
 
             Spacer(Modifier.height(8.dp))
 
             OutlinedTextField(
-                value = if (isEditing) email else state.email,
+                value = email,
                 onValueChange = { email = it },
                 label = { Text("Correo Electrónico") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = isEditing
+                enabled = false, // Email no editable usualmente
+                singleLine = true
             )
 
             Spacer(Modifier.height(8.dp))
@@ -132,7 +136,13 @@ fun ProfileScreen(
                 onValueChange = { phone = it },
                 label = { Text("Número de teléfono") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = isEditing
+                enabled = isEditing,
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFE52128),
+                    focusedLabelColor = Color(0xFFE52128),
+                    cursorColor = Color(0xFFE52128)
+                )
             )
 
             Spacer(Modifier.height(8.dp))
@@ -143,16 +153,23 @@ fun ProfileScreen(
                 label = { Text("Contraseña") },
                 modifier = Modifier.fillMaxWidth(),
                 enabled = isEditing,
-                visualTransformation = PasswordVisualTransformation()
+                visualTransformation = PasswordVisualTransformation(),
+                singleLine = true,
+                placeholder = { Text("********") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFE52128),
+                    focusedLabelColor = Color(0xFFE52128),
+                    cursorColor = Color(0xFFE52128)
+                )
             )
 
-            Spacer(Modifier.height(24.dp))
+            Spacer(Modifier.height(32.dp))
 
+            // --- BOTÓN ACCIÓN ---
             Button(
                 onClick = {
                     if (isEditing) {
-                        // Guardar cambios
-                        // Aquí iría la lógica para actualizar perfil
+                        // viewModel.saveProfile(...)
                     }
                     isEditing = !isEditing
                 },
@@ -160,13 +177,15 @@ fun ProfileScreen(
                     .fillMaxWidth()
                     .height(50.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isEditing) Color.Black else Color(0xFFE74C3C)
-                )
+                    containerColor = if (isEditing) Color.Black else Color(0xFFE52128)
+                ),
+                shape = MaterialTheme.shapes.medium
             ) {
                 Text(
-                    text = if (isEditing) "Actualizar" else "Editar Perfil",
+                    text = if (isEditing) "Guardar Cambios" else "Editar Perfil",
                     color = Color.White,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
         }

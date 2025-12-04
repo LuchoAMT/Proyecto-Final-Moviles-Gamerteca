@@ -20,7 +20,7 @@ import com.ucb.proyectofinalgamerteca.features.user_library.presentation.lists_p
 import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.ReleaseYearGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.login.domain.usecase.LoginUseCase
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginViewModel
-import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileViewModel
+import com.ucb.proyectofinalgamerteca.features.settings.presentation.ProfileViewModel
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterViewModel
 import com.ucb.proyectofinalgamerteca.features.settings.presentation.SettingsViewModel
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupViewModel

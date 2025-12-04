@@ -21,7 +21,7 @@ import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.Platfo
 import com.ucb.proyectofinalgamerteca.features.user_library.presentation.lists_public.PublicListsScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.ReleaseYearGamesScreen
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginScreen
-import com.ucb.proyectofinalgamerteca.features.profile.presentation.ProfileScreen
+import com.ucb.proyectofinalgamerteca.features.settings.presentation.ProfileScreen
 import com.ucb.proyectofinalgamerteca.features.register.presentation.RegisterScreen
 import com.ucb.proyectofinalgamerteca.features.settings.presentation.SettingsScreen
 import com.ucb.proyectofinalgamerteca.features.startupScreen.presentation.StartupScreen
@@ -153,18 +153,24 @@ fun AppNavigation(startDestination: String) {
             }
 
             composable(Screen.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(
+                    onBackClick = { navController.popBackStack() }
+                )
             }
 
             composable(Screen.Settings.route) {
                 SettingsScreen(
+                    onNavigateToProfile = {
+                        navController.navigate(Screen.Profile.route)
+                    },
+                    // Navegación a listas
                     onNavigateToUserLibrary = { filter ->
                         if (filter == "lists") {
                             navController.navigate(Screen.UserLists.route)
                         } else {
                             navController.navigate(Screen.UserGames.createRoute(filter))
                         }
-                    },
+                    }
                 )
             }
 

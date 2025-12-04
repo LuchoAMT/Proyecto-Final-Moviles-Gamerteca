@@ -39,6 +39,17 @@ android {
     buildFeatures {
         compose = true
     }
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
+            // Esta es la clave para que no choquen Mockk y Mockk-Android:
+            excludes += "META-INF/licenses/**"
+            excludes += "META-INF/AL2.0"
+            excludes += "META-INF/LGPL2.1"
+        }
+    }
 }
 
 dependencies {
@@ -90,6 +101,8 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
+    androidTestImplementation(libs.mockk.andorid)
+    androidTestImplementation(libs.mockk.agent)
 
     // Debug
     debugImplementation(libs.androidx.compose.ui.tooling)

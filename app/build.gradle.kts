@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.messaging)
+    implementation(libs.firebase.config)
     ksp(libs.androidx.room.compiler)
     implementation(libs.firebase.firestore.ktx)
 

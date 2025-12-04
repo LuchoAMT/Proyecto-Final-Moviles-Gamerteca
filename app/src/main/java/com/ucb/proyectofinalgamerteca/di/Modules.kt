@@ -2,6 +2,8 @@ package com.ucb.proyectofinalgamerteca.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.ucb.proyectofinalgamerteca.MainViewModel
+import com.ucb.proyectofinalgamerteca.core.data.RemoteConfigManager
 import com.ucb.proyectofinalgamerteca.features.auth.data.repository.FirebaseRepository
 import com.ucb.proyectofinalgamerteca.features.games.data.api.IgdbService
 import com.ucb.proyectofinalgamerteca.features.games.data.database.GamesRoomDatabase
@@ -87,6 +89,9 @@ val appModule = module {
         get<Retrofit>(named("igdb_retrofit")).create(IgdbService::class.java)
     }
 
+    //FirebaseRemoteConfig
+    single { RemoteConfigManager() }
+    viewModel { MainViewModel(remoteConfigManager = get()) }
     // =============================================================================================
     // 2. BASE DE DATOS LOCAL (Room)
     // =============================================================================================

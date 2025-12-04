@@ -34,6 +34,7 @@ googleServices = "4.4.1"
 firebaseBom = "32.7.0"
 firebaseFirestoreKtx = "24.11.1"
 firebaseMessaging = "25.0.1"
+firebaseConfig = "23.0.1"
 
 [libraries]
 accompanist-systemuicontroller = { module = "com.google.accompanist:accompanist-systemuicontroller", version.ref = "accompanist" }
@@ -74,6 +75,7 @@ firebase-auth = { group = "com.google.firebase", name = "firebase-auth", version
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-firestore-ktx = { group = "com.google.firebase", name = "firebase-firestore-ktx", version.ref = "firebaseFirestoreKtx" }
 firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
+firebase-config = { group = "com.google.firebase", name = "firebase-config", version.ref = "firebaseConfig" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

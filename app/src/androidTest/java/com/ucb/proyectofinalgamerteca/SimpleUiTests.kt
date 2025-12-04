@@ -5,8 +5,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
-import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListScreen
-import com.ucb.proyectofinalgamerteca.features.games.presentation.GamesListViewModel
+import com.ucb.proyectofinalgamerteca.features.games.presentation.home.GamesListScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.home.GamesListViewModel
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginScreen
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginUiState
 import com.ucb.proyectofinalgamerteca.features.login.presentation.LoginViewModel
@@ -42,7 +42,7 @@ class SimpleUiTests {
             LoginScreen(
                 onLoginSuccess = {},
                 onNavigateToRegister = {},
-                viewModel = mockViewModel // <--- AQUÍ ESTÁ EL TRUCO
+                viewModel = mockViewModel
             )
         }
 

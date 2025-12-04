@@ -7,11 +7,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFromBaseline
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -28,6 +31,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -42,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -55,129 +60,150 @@ fun SettingsScreen(
     val state by viewModel.uiState.collectAsState()
     var isDarkMode by remember { mutableStateOf(false) }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)
-    ) {
-        // --- CABECERA DE PERFIL ---
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(240.dp) // Un poco más alto para que quepa el botón
-                .background(Color(0xFFE53935)),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                // 1. Imagen Genérica (Local)
-                Icon(
-                    imageVector = Icons.Default.Person,
-                    contentDescription = "Imagen de perfil",
+    val systemUiController = rememberSystemUiController()
 
-                    tint = Color(0xFFE53935),
+    systemUiController.setSystemBarsColor(
+        color = Color.Transparent,
+        darkIcons = false
+    )
 
-                    modifier = Modifier
-                        .size(100.dp)
-                        .clip(CircleShape)
-                        .background(Color.White)
-                        .padding(16.dp)
-                )
 
-                Spacer(modifier = Modifier.height(12.dp))
+    Scaffold(
+        // Importante: contentWindowInsets = 0.dp para que el Scaffold NO empuje
+        // el contenido hacia abajo automáticamente. Queremos controlar eso nosotros
+        // para que el rojo quede detrás de la barra.
+        contentWindowInsets = WindowInsets(0.dp),
+        modifier = Modifier.fillMaxSize()
+    ) { paddingValues ->
 
-                // Datos del Usuario
-                Text(
-                    text = state.userName,
-                    color = Color.White,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 20.sp
-                )
-                Text(
-                    text = state.email,
-                    color = Color.White.copy(alpha = 0.9f),
-                    fontSize = 14.sp
-                )
-
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // 2. Botón para ir a Editar Perfil
-                Button(
-                    onClick = onNavigateToProfile,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color.White,
-                        contentColor = Color(0xFFE53935)
-                    ),
-                    shape = CircleShape,
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 4.dp),
-                    modifier = Modifier.height(36.dp)
-                ) {
-                    Text(
-                        text = "Editar Perfil",
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-
-        // --- OPCIONES (ATAJOS) ---
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .fillMaxSize()
+                .padding(paddingValues) // Padding inferior del sistema (si hubiera barra de navegación)
+                .background(Color.White)
         ) {
-            Text(
-                text = "Mi Biblioteca",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
+            // --- CABECERA DE PERFIL ---
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    //.height(240.dp) // Un poco más alto para que quepa el botón
+                    .background(Color(0xFFE53935)),
+                contentAlignment = Alignment.Center
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.statusBarsPadding().padding(bottom = 24.dp)) {
+                    // 1. Imagen Genérica (Local)
+                    Icon(
+                        imageVector = Icons.Default.Person,
+                        contentDescription = "Imagen de perfil",
 
-            SettingsItem(
-                icon = Icons.Default.SportsEsports,
-                title = "Mis Juegos",
-                onClick = { onNavigateToUserLibrary("all") }
-            )
-            SettingsItem(
-                icon = Icons.AutoMirrored.Filled.List,
-                title = "Mis Listas",
-                onClick = { onNavigateToUserLibrary("lists") }
-            )
-            SettingsItem(
-                icon = Icons.Default.FavoriteBorder,
-                title = "Favoritos",
-                onClick = { onNavigateToUserLibrary("favorites") }
-            )
-            SettingsItem(
-                icon = Icons.Default.Star,
-                title = "Mis Reseñas",
-                onClick = { onNavigateToUserLibrary("reviews") }
-            )
+                        tint = Color(0xFFE53935),
 
-            Divider(color = Color.LightGray.copy(alpha = 0.5f), modifier = Modifier.padding(vertical = 8.dp))
+                        modifier = Modifier
+                            .size(100.dp)
+                            .clip(CircleShape)
+                            .background(Color.White)
+                            .padding(16.dp)
+                    )
 
-            Text(
-                text = "Configuración",
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                modifier = Modifier.padding(vertical = 8.dp)
-            )
+                    Spacer(modifier = Modifier.height(12.dp))
 
-            SettingsItem(
-                icon = Icons.Default.Language,
-                title = "Lenguaje",
-                onClick = onNavigateToLanguage
-            )
-            SettingsItem(
-                icon = if (isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
-                title = if (isDarkMode) "Modo claro" else "Modo oscuro",
-                onClick = {
-                    isDarkMode = !isDarkMode
-                    onToggleDarkMode(isDarkMode)
+                    // Datos del Usuario
+                    Text(
+                        text = state.userName,
+                        color = Color.White,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                    Text(
+                        text = state.email,
+                        color = Color.White.copy(alpha = 0.9f),
+                        fontSize = 14.sp
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // 2. Botón para ir a Editar Perfil
+                    Button(
+                        onClick = onNavigateToProfile,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color.White,
+                            contentColor = Color(0xFFE53935)
+                        ),
+                        shape = CircleShape,
+                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 4.dp),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Text(
+                            text = "Editar Perfil",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 14.sp
+                        )
+                    }
                 }
-            )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // --- OPCIONES (ATAJOS) ---
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text(
+                    text = "Mi Biblioteca",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                SettingsItem(
+                    icon = Icons.Default.SportsEsports,
+                    title = "Mis Juegos",
+                    onClick = { onNavigateToUserLibrary("all") }
+                )
+                SettingsItem(
+                    icon = Icons.AutoMirrored.Filled.List,
+                    title = "Mis Listas",
+                    onClick = { onNavigateToUserLibrary("lists") }
+                )
+                SettingsItem(
+                    icon = Icons.Default.FavoriteBorder,
+                    title = "Favoritos",
+                    onClick = { onNavigateToUserLibrary("favorites") }
+                )
+                SettingsItem(
+                    icon = Icons.Default.Star,
+                    title = "Mis Reseñas",
+                    onClick = { onNavigateToUserLibrary("reviews") }
+                )
+
+                Divider(
+                    color = Color.LightGray.copy(alpha = 0.5f),
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                Text(
+                    text = "Configuración",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 16.sp,
+                    modifier = Modifier.padding(vertical = 8.dp)
+                )
+
+                SettingsItem(
+                    icon = Icons.Default.Language,
+                    title = "Lenguaje",
+                    onClick = onNavigateToLanguage
+                )
+                SettingsItem(
+                    icon = if (isDarkMode) Icons.Default.DarkMode else Icons.Default.LightMode,
+                    title = if (isDarkMode) "Modo claro" else "Modo oscuro",
+                    onClick = {
+                        isDarkMode = !isDarkMode
+                        onToggleDarkMode(isDarkMode)
+                    }
+                )
+            }
         }
     }
 }

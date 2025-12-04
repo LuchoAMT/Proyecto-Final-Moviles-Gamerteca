@@ -1,5 +1,6 @@
 package com.ucb.proyectofinalgamerteca.features.user_library.presentation.lists_public
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -10,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +42,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.ucb.proyectofinalgamerteca.features.user_library.presentation.components.GameListCard
 import org.koin.androidx.compose.koinViewModel
 
@@ -55,11 +58,19 @@ fun PublicListsScreen(
     val query by vm.searchQuery.collectAsState()
     var showCreateDialog by remember { mutableStateOf(false) }
 
+    val systemUiController = rememberSystemUiController()
+    systemUiController.setSystemBarsColor(
+        color = Color.Transparent,
+        darkIcons = true
+    )
+
     Scaffold(
         topBar = {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .statusBarsPadding()
                     .padding(16.dp)
             ) {
                 // 1. Buscador
@@ -158,5 +169,5 @@ fun PublicListsScreen(
                 }
             }
         }
-        }
+    }
 }

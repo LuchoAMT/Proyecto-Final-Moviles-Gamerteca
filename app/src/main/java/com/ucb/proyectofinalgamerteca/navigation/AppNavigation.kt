@@ -53,7 +53,7 @@ fun AppNavigation(startDestination: String) {
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(bottom = innerPadding.calculateBottomPadding())
         ) {
             // Startup
             composable(Screen.Startup.route) {

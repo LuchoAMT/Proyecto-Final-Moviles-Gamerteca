@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
@@ -70,7 +71,16 @@ class MainActivity : ComponentActivity() {
         } catch (e: Exception) {
             Log.e("DEBUG_UI", "❌ Error fatal Firebase: ${e.message}")
         }
-        enableEdgeToEdge()
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.auto(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            ),
+            navigationBarStyle = SystemBarStyle.auto(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            )
+        )
 
         val repo = FirebaseRepository()
         val startDestination = if (repo.getCurrentUserId() != null) {
@@ -90,7 +100,7 @@ class MainActivity : ComponentActivity() {
             }
             ProyectoFinalGamertecaTheme {
                 Surface(
-                    modifier = Modifier.fillMaxSize().statusBarsPadding()
+                    modifier = Modifier.fillMaxSize()
                 ) {
 
 

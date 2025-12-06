@@ -15,7 +15,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.DeveloperGamesScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.detail.GameDetailScreen
-import com.ucb.proyectofinalgamerteca.features.games.presentation.home.GamesListScreen
+import com.ucb.proyectofinalgamerteca.features.games.presentation.explore.GamesListScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.GenreGamesScreen
 import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.PlatformGamesScreen
 import com.ucb.proyectofinalgamerteca.features.user_library.presentation.lists_public.PublicListsScreen
@@ -90,7 +90,6 @@ fun AppNavigation(startDestination: String) {
                     onGameClick = { gameId ->
                         navController.navigate(Screen.GameDetail.createRoute(gameId))
                     },
-                    onBackClick = { navController.popBackStack() }
                 )
             }
 
@@ -117,7 +116,6 @@ fun AppNavigation(startDestination: String) {
                     onGameClick = { gameId ->
                         navController.navigate(Screen.GameDetail.createRoute(gameId))
                     },
-                    onBackClick = { navController.popBackStack() }
                 )
             }
 

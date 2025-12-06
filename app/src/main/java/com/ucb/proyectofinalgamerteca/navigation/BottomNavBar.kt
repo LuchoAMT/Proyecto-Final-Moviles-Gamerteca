@@ -2,6 +2,7 @@ package com.ucb.proyectofinalgamerteca.navigation
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.Explore
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Icon
@@ -19,7 +20,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 @Composable
 fun BottomNavBar(navController: NavController) {
     val items = listOf(
-        BottomNavItem("Juegos", Screen.GamesList.route, Icons.Default.Home),
+        BottomNavItem("Home", Screen.Settings.route, Icons.Default.Home),
+        BottomNavItem("Explorar", Screen.GamesList.route, Icons.Default.Explore),
         BottomNavItem("Listas", "lists", Icons.AutoMirrored.Filled.List),
         BottomNavItem("Perfil", Screen.Settings.route, Icons.Default.Person)
     )
@@ -36,8 +38,10 @@ fun BottomNavBar(navController: NavController) {
                 onClick = {
                     if (currentRoute != item.route) {
                         navController.navigate(item.route) {
-                            popUpTo(Screen.GamesList.route)
+                            // Pop hasta la ruta de inicio (GamesList/Explorar) para no acumular stack
+                            popUpTo(Screen.GamesList.route) { saveState = true }
                             launchSingleTop = true
+                            restoreState = true
                         }
                     }
                 },
@@ -54,6 +58,7 @@ fun BottomNavBar(navController: NavController) {
         }
     }
 }
+
 data class BottomNavItem(
     val label: String,
     val route: String,

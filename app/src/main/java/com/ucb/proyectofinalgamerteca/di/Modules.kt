@@ -12,10 +12,10 @@ import com.ucb.proyectofinalgamerteca.features.games.data.datasource.GamesRemote
 import com.ucb.proyectofinalgamerteca.features.games.data.repository.GamesRepository
 import com.ucb.proyectofinalgamerteca.features.games.domain.repository.IGamesRepository
 import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.GetGameDetailsUseCase
-import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.GetPopularGamesUseCase
+import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.SearchGamesUseCase
 import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.DeveloperGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.games.presentation.detail.GameDetailViewModel
-import com.ucb.proyectofinalgamerteca.features.games.presentation.home.GamesListViewModel
+import com.ucb.proyectofinalgamerteca.features.games.presentation.explore.GamesListViewModel
 import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.GenreGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.games.presentation.filters.PlatformGamesViewModel
 import com.ucb.proyectofinalgamerteca.features.user_library.presentation.lists_public.PublicListsViewModel
@@ -59,7 +59,7 @@ val appModule = module {
         "s5jtkakjst6oe0ngkk8cjb2w45edm0"
     }
     single(named("igdb_access_token")) {
-        "dhszlba7qkzsra4iwh1mbtmbhpuuol"
+        "exzeje4wyfqbvl2zfa3fqgla3frjkw"
     }
 
     // Firebase Instances
@@ -136,7 +136,7 @@ val appModule = module {
     // =============================================================================================
 
     // --- Juegos ---
-    single { GetPopularGamesUseCase(repository = get()) }
+    factory { SearchGamesUseCase(repository = get()) }
     single { GetGameDetailsUseCase(repository = get()) }
 
     // --- Librería de Usuario ---
@@ -166,7 +166,8 @@ val appModule = module {
     viewModel { SettingsViewModel(repo = get()) }
 
     // --- Listas y Biblioteca ---
-    viewModel { GamesListViewModel(getPopularGames = get()) }
+
+    viewModel { GamesListViewModel(searchGames = get()) }
 
     // Lista de juegos del usuario (Mis Juegos, Favoritos, etc.)
     viewModel {

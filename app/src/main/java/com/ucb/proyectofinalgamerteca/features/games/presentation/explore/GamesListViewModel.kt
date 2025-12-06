@@ -1,14 +1,11 @@
 package com.ucb.proyectofinalgamerteca.features.games.presentation.explore
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ucb.proyectofinalgamerteca.features.games.data.datasource.SearchType
 import com.ucb.proyectofinalgamerteca.features.games.domain.model.GameModel
-import com.ucb.proyectofinalgamerteca.features.games.domain.repository.IGamesRepository
 import com.ucb.proyectofinalgamerteca.features.games.domain.usecase.SearchGamesUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.util.Calendar

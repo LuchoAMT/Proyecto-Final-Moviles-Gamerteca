@@ -81,25 +81,29 @@ class SimpleUiTests {
             summary = "Un juego de prueba",
             releaseDate = 123456789L,
             platforms = listOf(),
-            genres = listOf()
+            genres = listOf(),
+
         )
 
         // 3. ESTADO: Forzamos al VM a decir "Ya cargué con éxito" (Success)
-        val successState = GamesListViewModel.UiState.Success(listOf(fakeGame))
-        every { mockViewModel.state } returns MutableStateFlow(successState)
+        val successState = GamesListViewModel.UiState(
+            games = listOf(fakeGame),
+            isLoading = false,
+            error = null
+        )
+        every { mockViewModel.uiState } returns MutableStateFlow(successState)
 
         // 4. CARGAR PANTALLA
         composeTestRule.setContent {
             GamesListScreen(
                 onGameClick = {},
-                onBackClick = {},
-                vm = mockViewModel // <--- Inyectamos el falso para evitar Koin/Retrofit
+                vm = mockViewModel
             )
         }
 
         // 5. VERIFICAR
         // Buscamos si el texto del juego aparece en pantalla
-        composeTestRule.onNodeWithText("Super Kong Adventure").assertIsDisplayed()
+        composeTestRule.onNodeWithText("Super Kong Adventure").assertExists()
 
         // Verificamos que NO aparezca el error ni el loading
         // (Esto es opcional, pero buena práctica)

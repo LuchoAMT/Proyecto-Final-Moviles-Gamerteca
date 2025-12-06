@@ -20,7 +20,6 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 @Composable
 fun BottomNavBar(navController: NavController) {
     val items = listOf(
-        BottomNavItem("Home", Screen.Settings.route, Icons.Default.Home),
         BottomNavItem("Explorar", Screen.GamesList.route, Icons.Default.Explore),
         BottomNavItem("Listas", "lists", Icons.AutoMirrored.Filled.List),
         BottomNavItem("Perfil", Screen.Settings.route, Icons.Default.Person)
